@@ -34,7 +34,10 @@ public:
     stbox::bytes result;
     for (auto it : mo.values()) {
       result += it.get<::others>();
+      result += stbox::bytes("\n");
     }
+    stbox::printf("counter: %d\n", counter);
+    stbox::printf("result size: %d\n", result.size());
     stbox::printf("result: %s\n", result.data());
     return result;
   }
