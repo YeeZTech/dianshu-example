@@ -7,25 +7,33 @@
 #include <hpda/processor/query/filter.h>
 #include <string.h>
 
-class enclave_simple_parser {
+class enclave_min_parser {
 public:
-  enclave_simple_parser() {}
-  enclave_simple_parser(
+  enclave_min_parser() {}
+  enclave_min_parser(
       ::hpda::extractor::internal::extractor_base<user_item_t> *source)
       : m_source(source){};
 
   inline stbox::bytes do_parse(const stbox::bytes &param) {
     LOG(INFO) << "do parse";
     int counter = 0;
+    stbox::bytes result;
     hpda::processor::internal::filter_impl<user_item_t> match(
         m_source, [&](const user_item_t &v) {
-          counter++;
+          // TODO first line has been read twice
+          if (counter < 2) {
+            counter++;
+            return false;
+          }
           std::string key = v.get<::first_item>();
-          // param may ignore quotes
-          stbox::bytes quote_param =
-              stbox::bytes("\"") + param + stbox::bytes("\"");
-          if (memcmp(key.c_str(), param.data(), key.size()) == 0 ||
-              memcmp(key.c_str(), quote_param.data(), key.size()) == 0) {
+          // initialize result
+          if (2 == counter) {
+            result = stbox::bytes(key);
+          }
+          counter++;
+          size_t size = std::max(key.size(), result.size());
+          if (memcmp(key.c_str(), result.data(), size) < 0) {
+            result = stbox::bytes(key);
             return true;
           }
           return false;
@@ -35,13 +43,6 @@ public:
     mo.run();
     LOG(INFO) << "do parse done";
 
-    stbox::bytes result;
-    for (auto it : mo.values()) {
-      result += param;
-      result += stbox::bytes(",");
-      result += it.get<::others>();
-      result += stbox::bytes("\n");
-    }
     stbox::printf("counter: %d\n", counter);
     stbox::printf("result size: %d\n", result.size());
     stbox::printf("result: %s\n", result.data());
