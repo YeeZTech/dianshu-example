@@ -1,5 +1,5 @@
 #include "eparser_t.h"
-#include "ip_search_parser.h"
+#include "ip_search_street.h"
 #include "sgx_plugin.h"
 #include "sgx_utils.h"
 #include "stbox/tsgx/log.h"
@@ -9,6 +9,6 @@
 #include <stdio.h> /* vsnprintf */
 #include <string.h>
 
-ypc::parser_wrapper<user_item_t, ip_search_parser> pw;
+ypc::parser_wrapper<user_item_t, ip_search_street> pw;
 
 YPC_PARSER_IMPL(pw);

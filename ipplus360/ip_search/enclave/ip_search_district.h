@@ -16,10 +16,10 @@
 #include <hpda/processor/query/filter.h>
 #include <string.h>
 
-class ip_search_parser {
+class ip_search_district {
 public:
-  ip_search_parser() {}
-  ip_search_parser(
+  ip_search_district() {}
+  ip_search_district(
       ::hpda::extractor::internal::extractor_base<user_item_t> *source)
       : m_source(source){};
 
@@ -35,8 +35,11 @@ public:
       resp = new char[resp_size]; },
                                [&]() {
       delete[] resp; });
+
+    std::string service("IP_SEARCH_DISTRICT");
     uint32_t ret = stbox::ocall_cast<uint32_t>(ocall_http_request)(
-        (const char *)param.data(), param.size(), resp, resp_size);
+        &service[0], service.size(), (const char *)param.data(), param.size(),
+        resp, resp_size);
     if (ret) {
       return stbox::bytes();
     }
