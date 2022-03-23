@@ -7,8 +7,7 @@
 #include "enclave_simple_parser.h"
 #include "sgx_utils.h"
 #include "ypc_t/analyzer/macro.h"
-#include "ypc_t/analyzer/parser_wrapper.h"
 
 ypc::parser_wrapper<user_item_t, enclave_simple_parser> pw;
 
-YPC_PARSER_IMPL(pw);
+YPC_PARSER_IMPL(pw, ypc::ecall_parse_item_data);
