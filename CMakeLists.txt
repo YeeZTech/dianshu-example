@@ -3,3 +3,4 @@
 #add_subdirectory(npp_viirs)
 #add_subdirectory(ipplus360)
 add_subdirectory(clickhouse)
+add_subdirectory(medical)
