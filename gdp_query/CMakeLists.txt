@@ -10,4 +10,4 @@ target_link_libraries(gdp_query_parser stbox_common_t stbox_channel_t ypc_analyz
 
 enclave_sign(gdp_query_parser KEY enclave_private.pem
   CONFIG enclave.config.xml)
-install(FILES ${PROJECT_SOURCE_DIR}/lib/column_3_parser.signed.so DESTINATION lib COMPONENT c_example OPTIONAL)
+install(FILES ${PROJECT_SOURCE_DIR}/lib/gdp_query_parser.signed.so DESTINATION lib COMPONENT c_example OPTIONAL)
