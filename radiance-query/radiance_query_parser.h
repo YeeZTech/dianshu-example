@@ -36,13 +36,23 @@ public:
     mo.get_engine()->run();
     LOG(INFO) << "do parse done";
 
-    stbox::bytes result("not found\n");
+    stbox::bytes result;
+    bool flag = false;
     for (auto it : mo.values()) {
+      flag = true;
       result += stbox::bytes(it.get<year_month>());
+      result += stbox::bytes(",");
       result += stbox::bytes(it.get<name>());
+      result += stbox::bytes(",");
       result += stbox::bytes(it.get<area>());
+      result += stbox::bytes(",");
       result += stbox::bytes(it.get<rad>());
+      result += stbox::bytes(",");
       result += stbox::bytes(it.get<rad_perarea>());
+      result += stbox::bytes("\n");
+    }
+    if (!flag) {
+      result = stbox::bytes("not found\n");
     }
     return result;
   }
