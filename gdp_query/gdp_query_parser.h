@@ -10,7 +10,7 @@
 #include <hpda/output/memory_output.h>
 #include <hpda/processor/query/filter.h>
 
-typedef ff::net::ntpackage<0, county_name, year> nt_package_t;
+typedef ff::net::ntpackage<0, county_name > nt_package_t;
 
 class gdp_query_parser {
 public:
@@ -26,8 +26,7 @@ public:
         &converter, [&](const gdp_query_item_t &v) {
           counter++;
           std::string first_item = v.get<county_name>();
-          std::string second_item = v.get<year>();
-          if ( first_item == pkg.get<county_name>() && second_item == pkg.get<year>() ) {
+          if ( first_item == pkg.get<county_name>() ) {
             return true;
           }
           return false;
@@ -37,17 +36,18 @@ public:
     mo.get_engine()->run();
     LOG(INFO) << "do parse done";
 
-    stbox::bytes result("not found\n");
-    // bool flag = false;
+    stbox::bytes result( "" );
+    bool flag = false;
     for (auto it : mo.values()) {
-      result = stbox::bytes(it.get<gdp>());
-      break;
+      flag = true;
+      result += stbox::bytes(it.get<year>());
+      result = stbox::bytes( ':' );
+      result += stbox::bytes(it.get<gdp>());
+      result = stbox::bytes( ';' );
     }
-    /*
-    if (flag) {
-      result = stbox::bytes("found\n");
+    if ( !flag ) {
+      result = stbox::bytes( "not found\n" );
     }
-    */
     return result;
   }
 
