@@ -10,7 +10,7 @@
 #include <hpda/output/memory_output.h>
 #include <hpda/processor/query/filter.h>
 
-typedef ff::net::ntpackage<0, radiance_sum> nt_package_t;
+typedef ff::net::ntpackage<0, name> nt_package_t;
 
 class gdp_prediction_parser {
 public:
@@ -24,21 +24,34 @@ public:
 
     hpda::processor::internal::filter_impl<gdp_prediction_item_t> match(
         &converter, [&](const gdp_prediction_item_t &v) {
-          return true;
+          std::string first_item = v.get<name>();
+          if ( first_item == pkg.get<name>() ) {
+            return true;
+          }
+          return false;
         });
 
     hpda::output::internal::memory_output_impl<gdp_prediction_item_t> mo(&match);
-
     mo.get_engine()->run();
-
     LOG(INFO) << "do parse done";
+
+    stbox::bytes result;
+    double year_rad = 0;
+    double area = 0;
+    for (auto it : mo.values()) {
+      std::string year_month = it.get< year_month >();
+      int ym = std::stoi( year_month )
+      area = std::stod( it.get< area >() );
+      if ( ym < 202113 && 202100 < ym ) {
+        double rad_perarea = std::stod( it.get< rad_perarea >() );
+        year_rad += rad_perarea;
+      }
+    }
 
     double slope = 4787.502598784844;
     double vertical_intercept = -80.42706901157614;
-    auto rad = pkg.get<radiance_sum>();
-    auto radiance = std::stod( rad );
-    auto res = slope * radiance + vertical_intercept;
-    auto temp = std::to_string( res );
+    auto res = slope * ( year_rad / 12 ) + vertical_intercept;
+    auto temp = std::to_string( res * area );
     stbox::bytes result( temp );
     return result;
   }

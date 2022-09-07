@@ -1,5 +1,9 @@
 #pragma once
 #include <ff/util/ntobject.h>
 #include <string>
-define_nt(radiance_sum, std::string);
-typedef ff::util::ntobject<radiance_sum> gdp_prediction_item_t;
+define_nt(year_month, std::string);
+define_nt(name, std::string);
+define_nt(area, std::string);
+define_nt(rad, std::string);
+define_nt(rad_perarea, std::string);
+typedef ff::util::ntobject<year_month, name, area, rad, rad_perarea> gdp_prediction_item_t;
