@@ -9,6 +9,7 @@
 #include <hpda/extractor/raw_data.h>
 #include <hpda/output/memory_output.h>
 #include <hpda/processor/query/filter.h>
+#include <vector>
 
 typedef ff::net::ntpackage<0, name> nt_package_t;
 
@@ -38,17 +39,30 @@ public:
 
     stbox::bytes result;
     bool flag = false;
-    for (auto it : mo.values()) {
+    std::vector< std::vector< std::string > > temp;
+    for ( auto it : mo.values() ) {
+      std::vector< std::string > temp_temp;
+      temp_temp.push_back( std::string( it.get< year_month >() ) );
+      temp_temp.push_back( std::string( it.get< name >() ) );
+      temp_temp.push_back( std::string( it.get< area >() ) );
+      temp_temp.push_back( std::string( it.get< rad >() ) );
+      temp_temp.push_back( std::string( it.get< rad_perarea >() ) );
+      temp.emplace_back( temp_temp );
+    }
+    std::sort( temp.begin(), temp.end(), []( const std::vector< std::string >& a, const std::vector< std::string >& b ){ 
+		      return a[ 0 ] > b[ 0 ]; 
+		    } );
+    for (auto it : temp ) {
       flag = true;
-      result += stbox::bytes(it.get<year_month>());
+      result += stbox::bytes( it[ 0 ] );
       result += stbox::bytes(",");
-      result += stbox::bytes(it.get<name>());
+      result += stbox::bytes( it[ 1 ] );
       result += stbox::bytes(",");
-      result += stbox::bytes(it.get<area>());
+      result += stbox::bytes( it[ 2 ] );
       result += stbox::bytes(",");
-      result += stbox::bytes(it.get<rad>());
+      result += stbox::bytes( it[ 3 ] );
       result += stbox::bytes(",");
-      result += stbox::bytes(it.get<rad_perarea>());
+      result += stbox::bytes( it[ 4 ] );
       result += stbox::bytes("\n");
     }
     if (!flag) {

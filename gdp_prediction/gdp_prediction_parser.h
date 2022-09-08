@@ -34,24 +34,21 @@ public:
     hpda::output::internal::memory_output_impl<gdp_prediction_item_t> mo(&match);
     mo.get_engine()->run();
     LOG(INFO) << "do parse done";
-
-    stbox::bytes result;
     double year_rad = 0;
-    double area = 0;
+    double ar = 0;
     for (auto it : mo.values()) {
-      std::string year_month = it.get< year_month >();
-      int ym = std::stoi( year_month )
-      area = std::stod( it.get< area >() );
+      int ym = std::stoi( it.get< year_month >() );
+      ar = std::stod( it.get< area >() );
+      double rp = std::stod( it.get< rad_perarea >() );
       if ( ym < 202113 && 202100 < ym ) {
-        double rad_perarea = std::stod( it.get< rad_perarea >() );
-        year_rad += rad_perarea;
+        year_rad += rp;
       }
     }
 
     double slope = 4787.502598784844;
     double vertical_intercept = -80.42706901157614;
     auto res = slope * ( year_rad / 12 ) + vertical_intercept;
-    auto temp = std::to_string( res * area );
+    auto temp = std::to_string( res * ar );
     stbox::bytes result( temp );
     return result;
   }
