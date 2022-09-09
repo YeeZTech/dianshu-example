@@ -25,7 +25,7 @@ public:
     hpda::processor::internal::filter_impl<gdp_prediction_item_t> match(
         &converter, [&](const gdp_prediction_item_t &v) {
           std::string first_item = v.get<name>();
-          if ( first_item == pkg.get<name>() ) {
+          if ( first_item == pkg.get<name>() || pkg.get< county_name >().find( first_item ) != std::string::npos ) {
             return true;
           }
           return false;
@@ -49,7 +49,9 @@ public:
     double vertical_intercept = -80.42706901157614;
     auto res = slope * ( year_rad / 12 ) + vertical_intercept;
     auto temp = std::to_string( res * ar );
-    stbox::bytes result( temp );
+    stbox::bytes result( pkg.get< county_name >() );
+    result += stbox::bytes( '\n' );
+    result += stbox::bytes( temp );
     return result;
   }
 

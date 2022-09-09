@@ -26,7 +26,7 @@ public:
         &converter, [&](const gdp_query_item_t &v) {
           counter++;
           std::string first_item = v.get<county_name>();
-          if ( first_item == pkg.get<county_name>() ) {
+          if ( first_item == pkg.get<county_name>() || pkg.get< county_name >().find( first_item ) != std::string::npos ) {
             return true;
           }
           return false;
@@ -36,14 +36,19 @@ public:
     mo.get_engine()->run();
     LOG(INFO) << "do parse done";
 
-    stbox::bytes result( "" );
+    stbox::bytes result( pkg.get< county_name >() );
+    result += stbox::bytes( '\n' );
     bool flag = false;
+    int count = 0;
     for (auto it : mo.values()) {
+      if ( count >= 50 )
+        break;
       flag = true;
       result += stbox::bytes(it.get<year>());
-      result = stbox::bytes( ':' );
+      result += stbox::bytes( ':' );
       result += stbox::bytes(it.get<gdp>());
-      result = stbox::bytes( ';' );
+      result += stbox::bytes( ';' );
+      count ++;
     }
     if ( !flag ) {
       result = stbox::bytes( "not found\n" );

@@ -27,7 +27,7 @@ public:
         &converter, [&](const radiance_query_item_t &v) {
           counter++;
           std::string first_item = v.get<name>();
-          if ( first_item == pkg.get<name>() ) {
+          if ( first_item == pkg.get<name>() || pkg.get< county_name >().find( first_item ) != std::string::npos ) {
             return true;
           }
           return false;
@@ -40,7 +40,10 @@ public:
     stbox::bytes result;
     bool flag = false;
     std::vector< std::vector< std::string > > temp;
+    int count = 0;
     for ( auto it : mo.values() ) {
+      if ( count >= 330 )
+        break;
       std::vector< std::string > temp_temp;
       temp_temp.push_back( std::string( it.get< year_month >() ) );
       temp_temp.push_back( std::string( it.get< name >() ) );
