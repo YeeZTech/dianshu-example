@@ -19,7 +19,7 @@ public:
 
   inline stbox::bytes do_parse(const stbox::bytes &param) {
     ypc::to_type<stbox::bytes, gdp_query_item_t> converter(m_source);
-
+    LOG(INFO) << "into from_bytes";
     auto pkg = ypc::make_package<nt_package_t>::from_bytes(param);
     int counter = 0;
     hpda::processor::internal::filter_impl<gdp_query_item_t> match(
@@ -77,7 +77,7 @@ public:
       result += stbox::bytes("\n");
     }
     if (!flag) {
-      result = stbox::bytes("not found\n");
+      result = stbox::bytes( "您输入的参数不能匹配到对应的地区, 请重新提交\n" );
     }
     return result;
   }

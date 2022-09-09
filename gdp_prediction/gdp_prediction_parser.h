@@ -18,25 +18,29 @@ public:
       : m_source(source){};
 
   inline stbox::bytes do_parse(const stbox::bytes &param) {
+    LOG(INFO) << "into converter";
     ypc::to_type<stbox::bytes, gdp_prediction_item_t> converter(m_source);
-
+    LOG(INFO) << "into from_bytes";
     auto pkg = ypc::make_package<nt_package_t>::from_bytes(param);
-
+    LOG(INFO) << "filter_impl";
     hpda::processor::internal::filter_impl<gdp_prediction_item_t> match(
         &converter, [&](const gdp_prediction_item_t &v) {
           std::string first_item = v.get<name>();
-          if ( first_item == pkg.get<name>() || ( first_item.find( pkg.get< name >() ) != std::string::npos && pkg.get< name >()。size() >= 6 ) ) {
+          if ( first_item == pkg.get<name>() ) {
             return true;
           }
           return false;
         });
-
+    LOG(INFO) << "into mo";
     hpda::output::internal::memory_output_impl<gdp_prediction_item_t> mo(&match);
+    LOG(INFO) << "into run";
     mo.get_engine()->run();
     LOG(INFO) << "do parse done";
     double year_rad = 0;
     double ar = 0;
+    bool is_found = false;
     for (auto it : mo.values()) {
+      is_found = true;
       int ym = std::stoi( it.get< year_month >() );
       ar = std::stod( it.get< area >() );
       double rp = std::stod( it.get< rad_perarea >() );
@@ -54,6 +58,8 @@ public:
     result += stbox::bytes( "GDP(万元)\n" );
     result += stbox::bytes( temp );
     result += stbox::bytes( "\n" );
+    if ( !is_found )
+      result = stbox::bytes( "您输入的参数不能匹配到对应的地区, 请重新提交\n" );
     return result;
   }
 
