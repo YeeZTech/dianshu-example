@@ -50,8 +50,10 @@ public:
     auto res = slope * ( year_rad / 12 ) + vertical_intercept;
     auto temp = std::to_string( res * ar );
     stbox::bytes result( pkg.get< name >() );
-    result += stbox::bytes( '\n' );
+    result += stbox::bytes( "\n" );
+    result += stbox::bytes( "GDP(万元)\n" );
     result += stbox::bytes( temp );
+    result += stbox::bytes( "\n" );
     return result;
   }
 

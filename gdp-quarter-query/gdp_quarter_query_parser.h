@@ -34,12 +34,13 @@ public:
     mo.get_engine()->run();
     LOG(INFO) << "do parse done";
 
-    stbox::bytes result( "" );
+    stbox::bytes result( "结果:\n" );
+    result += stbox::bytes( "年份季度( A、B、C、D分别代表第一、第二、第三、第四季度, 如2022B表示2022年第二季度 ), GDP(亿元)\n" );
     bool is_found = false;
     for (auto it : mo.values()) {
       is_found = true;
       result += stbox::bytes( pkg.get< province_name >() );
-      result += stbox::bytes( '\n' );
+      result += stbox::bytes( "\n" );
       result += stbox::bytes(it.get< gdp_quarters >());
       break;
     }

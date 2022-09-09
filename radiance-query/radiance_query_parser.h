@@ -38,6 +38,7 @@ public:
     LOG(INFO) << "do parse done";
 
     stbox::bytes result;
+    result += stbox::bytes("年份月份( 如: 202206 表示 2022年06月 ), 地区名称, 面积 ( 平方公里 ), 灯光亮度总和 ( nW/cm^2/sr ), 单位面积灯光亮度总和 ( nW/cm^2/sr / 平方公里 )\n");
     bool flag = false;
     std::vector< std::vector< std::string > > temp;
     int count = 0;
