@@ -25,7 +25,7 @@ public:
     hpda::processor::internal::filter_impl<gdp_prediction_item_t> match(
         &converter, [&](const gdp_prediction_item_t &v) {
           std::string first_item = v.get<name>();
-          if ( first_item == pkg.get<name>() || first_item.find( pkg.get< name >() ) != std::string::npos ) {
+          if ( first_item == pkg.get<name>() || ( first_item.find( pkg.get< name >() ) != std::string::npos && pkg.get< name >()。size() >= 6 ) ) {
             return true;
           }
           return false;

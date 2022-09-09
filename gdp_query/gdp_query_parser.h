@@ -38,7 +38,7 @@ public:
 
     stbox::bytes result( pkg.get< county_name >() );
     result += stbox::bytes( "\n" );
-    result += stbox::bytes( "年份,GDP(万元)\n" );
+    result += stbox::bytes( "地区名称 ( 区/县 ), 年份, GDP ( 万元 ), 第一产业增加值 ( 万元 ), 第二产业增加值 ( 万元 ) , 面积 ( 平方公里 ) \n" );
     bool flag = false;
     int count = 0;
     std::vector< std::vector< std::string > > temp;
@@ -46,19 +46,34 @@ public:
       if ( count >= 50 )
         break;
       std::vector< std::string > temp_temp;
+      temp_temp.push_back( std::string( it.get< county_name >() ) );
       temp_temp.push_back( std::string( it.get< year >() ) );
       temp_temp.push_back( std::string( it.get< gdp >() ) );
+      temp_temp.push_back( std::string( it.get< gdp_1 >() ) );
+      temp_temp.push_back( std::string( it.get< gdp_2 >() ) );
+      temp_temp.push_back( std::string( it.get< area >() ) );
       temp.emplace_back( temp_temp );
       count ++;
     }
     std::sort( temp.begin(), temp.end(), []( const std::vector< std::string >& a, const std::vector< std::string >& b ){ 
-		      return a[ 0 ] > b[ 0 ]; 
+          if ( a[ 0 ] == b[ 0 ] )
+            return a[ 1 ] > b[ 1 ];
+          else
+            return a[ 0 ] > b[ 0 ];
 		    } );
     for (auto it : temp ) {
       flag = true;
       result += stbox::bytes( it[ 0 ] );
       result += stbox::bytes(",");
       result += stbox::bytes( it[ 1 ] );
+      result += stbox::bytes(",");
+      result += stbox::bytes( it[ 2 ] );
+      result += stbox::bytes(",");
+      result += stbox::bytes( it[ 3 ] );
+      result += stbox::bytes(",");
+      result += stbox::bytes( it[ 4 ] );
+      result += stbox::bytes(",");
+      result += stbox::bytes( it[ 5 ] );
       result += stbox::bytes("\n");
     }
     if (!flag) {

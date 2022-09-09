@@ -54,7 +54,10 @@ public:
       temp.emplace_back( temp_temp );
     }
     std::sort( temp.begin(), temp.end(), []( const std::vector< std::string >& a, const std::vector< std::string >& b ){ 
-		      return a[ 0 ] > b[ 0 ]; 
+          if ( a[ 1 ] == b[ 1 ] )
+            return a[ 0 ] > b[ 0 ];
+          else
+            return a[ 0 ] > b[ 0 ];
 		    } );
     for (auto it : temp ) {
       flag = true;
