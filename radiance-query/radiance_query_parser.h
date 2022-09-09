@@ -27,7 +27,7 @@ public:
         &converter, [&](const radiance_query_item_t &v) {
           counter++;
           std::string first_item = v.get<name>();
-          if ( first_item == pkg.get<name>() || pkg.get< county_name >().find( first_item ) != std::string::npos ) {
+          if ( first_item == pkg.get<name>() || first_item.find( pkg.get< name >() ) != std::string::npos ) {
             return true;
           }
           return false;

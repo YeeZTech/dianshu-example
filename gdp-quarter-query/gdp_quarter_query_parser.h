@@ -24,7 +24,7 @@ public:
     hpda::processor::internal::filter_impl<gdp_quarter_query_item_t> match(
         &converter, [&](const gdp_quarter_query_item_t &v) {
           std::string first_item = v.get<province_name>();
-          if ( first_item == pkg.get<province_name>() || pkg.get< county_name >().find( first_item ) != std::string::npos ) {
+          if ( first_item == pkg.get<province_name>() || first_item.find( pkg.get< province_name >() ) != std::string::npos ) {
             return true;
           }
           return false;
@@ -38,7 +38,7 @@ public:
     bool is_found = false;
     for (auto it : mo.values()) {
       is_found = true;
-      result += stbox::bytes( pkg.get< county_name >() );
+      result += stbox::bytes( pkg.get< province_name >() );
       result += stbox::bytes( '\n' );
       result += stbox::bytes(it.get< gdp_quarters >());
       break;
