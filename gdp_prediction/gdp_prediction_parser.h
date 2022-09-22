@@ -26,7 +26,7 @@ public:
     hpda::processor::internal::filter_impl<gdp_prediction_item_t> match(
         &converter, [&](const gdp_prediction_item_t &v) {
           std::string first_item = v.get<name>();
-          if ( first_item == pkg.get<name>() ) {
+          if ( first_item == pkg.get< name >() && pkg.get< name >().find( "省" ) == std::string::npos && pkg.get< name >().find( "自治区" ) == std::string::npos && pkg.get< name >().find( "特别行政区" ) == std::string::npos && pkg.get< name >().find( "国" ) == std::string::npos ) {
             return true;
           }
           return false;
@@ -53,12 +53,12 @@ public:
     double vertical_intercept = -80.42706901157614;
     auto res = slope * ( year_rad / 12 ) + vertical_intercept;
     auto temp = std::to_string( res * ar );
-    stbox::bytes result( pkg.get< name >() );
-    result += stbox::bytes( "\n" );
-    result += stbox::bytes( "GDP(万元)\n" );
+    stbox::bytes result( "地区名称 ( 区县 ) , 2021年GDP预估 ( 万元 ) \n" );
+    result += stbox::bytes( pkg.get< name >() );
+    result += stbox::bytes( "," );
     result += stbox::bytes( temp );
     result += stbox::bytes( "\n" );
-    if ( !is_found )
+    if ( !is_found || res * ar < 10000 )
       result = stbox::bytes( "您输入的参数不能匹配到对应的地区, 请重新提交\n" );
     return result;
   }
