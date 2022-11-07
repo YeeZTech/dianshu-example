@@ -6,4 +6,4 @@ define_nt(name, std::string);
 define_nt(area, std::string);
 define_nt(rad, std::string);
 define_nt(rad_perarea, std::string);
-typedef ff::util::ntobject<year_month, name, area, rad, rad_perarea> gdp_prediction_item_t;
+typedef ff::util::ntobject<year_month, name, area, rad, rad_perarea> radiance_query_item_t;

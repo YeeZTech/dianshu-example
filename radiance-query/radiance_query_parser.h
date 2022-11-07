@@ -9,57 +9,55 @@
 #include <hpda/extractor/raw_data.h>
 #include <hpda/output/memory_output.h>
 #include <hpda/processor/query/filter.h>
+#include <vector>
 
-typedef ff::net::ntpackage<0, county_name > nt_package_t;
+typedef ff::net::ntpackage<0, name> nt_package_t;
 
-class gdp_query_parser {
+class radiance_query_parser {
 public:
-  gdp_query_parser(ypc::data_source<stbox::bytes> *source)
+  radiance_query_parser(ypc::data_source<stbox::bytes> *source)
       : m_source(source){};
 
   inline stbox::bytes do_parse(const stbox::bytes &param) {
-    ypc::to_type<stbox::bytes, gdp_query_item_t> converter(m_source);
-    LOG(INFO) << "into from_bytes";
+    ypc::to_type<stbox::bytes, radiance_query_item_t> converter(m_source);
+
     auto pkg = ypc::make_package<nt_package_t>::from_bytes(param);
     int counter = 0;
-    hpda::processor::internal::filter_impl<gdp_query_item_t> match(
-        &converter, [&](const gdp_query_item_t &v) {
+    hpda::processor::internal::filter_impl<radiance_query_item_t> match(
+        &converter, [&](const radiance_query_item_t &v) {
           counter++;
-          std::string first_item = v.get<county_name>();
-          if ( first_item == pkg.get<county_name>() || first_item.find( pkg.get< county_name >() ) != std::string::npos ) {
+          std::string first_item = v.get<name>();
+          if ( first_item == pkg.get<name>() || first_item.find( pkg.get< name >() ) != std::string::npos ) {
             return true;
           }
           return false;
         });
 
-    hpda::output::internal::memory_output_impl<gdp_query_item_t> mo(&match);
+    hpda::output::internal::memory_output_impl<radiance_query_item_t> mo(&match);
     mo.get_engine()->run();
     LOG(INFO) << "do parse done";
 
-    stbox::bytes result( pkg.get< county_name >() );
-    result += stbox::bytes( "\n" );
-    result += stbox::bytes( "地区名称 ( 区/县 ), 年份, GDP ( 万元 ), 第一产业增加值 ( 万元 ), 第二产业增加值 ( 万元 ) , 面积 ( 平方公里 ) \n" );
+    stbox::bytes result;
+    result += stbox::bytes("年份月份( 如: 202206 表示 2022年06月 ), 地区名称, 面积 ( 平方公里 ), 灯光亮度总和 ( nW/cm^2/sr ), 单位面积灯光亮度总和 ( nW/cm^2/sr / 平方公里 )\n");
     bool flag = false;
-    int count = 0;
     std::vector< std::vector< std::string > > temp;
+    int count = 0;
     for ( auto it : mo.values() ) {
-      if ( count >= 50 )
+      if ( count >= 330 )
         break;
       std::vector< std::string > temp_temp;
-      temp_temp.push_back( std::string( it.get< county_name >() ) );
-      temp_temp.push_back( std::string( it.get< year >() ) );
-      temp_temp.push_back( std::string( it.get< gdp >() ) );
-      temp_temp.push_back( std::string( it.get< gdp_1 >() ) );
-      temp_temp.push_back( std::string( it.get< gdp_2 >() ) );
+      temp_temp.push_back( std::string( it.get< year_month >() ) );
+      temp_temp.push_back( std::string( it.get< name >() ) );
       temp_temp.push_back( std::string( it.get< area >() ) );
+      temp_temp.push_back( std::string( it.get< rad >() ) );
+      temp_temp.push_back( std::string( it.get< rad_perarea >() ) );
       temp.emplace_back( temp_temp );
-      count ++;
     }
     std::sort( temp.begin(), temp.end(), []( const std::vector< std::string >& a, const std::vector< std::string >& b ){ 
-          if ( a[ 0 ] == b[ 0 ] )
-            return a[ 1 ] > b[ 1 ];
-          else
+          if ( a[ 1 ] == b[ 1 ] )
             return a[ 0 ] > b[ 0 ];
+          else
+            return a[ 1 ] > b[ 1 ];
 		    } );
     for (auto it : temp ) {
       flag = true;
@@ -72,8 +70,6 @@ public:
       result += stbox::bytes( it[ 3 ] );
       result += stbox::bytes(",");
       result += stbox::bytes( it[ 4 ] );
-      result += stbox::bytes(",");
-      result += stbox::bytes( it[ 5 ] );
       result += stbox::bytes("\n");
     }
     if (!flag) {

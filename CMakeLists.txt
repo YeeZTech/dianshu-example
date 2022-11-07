@@ -4,5 +4,7 @@
 #add_subdirectory(ipplus360)
 #add_subdirectory(clickhouse)
 #add_subdirectory(medical)
+add_subdirectory(gdp-quarter-query)
 add_subdirectory(gdp_prediction)
 add_subdirectory(gdp_query)
+add_subdirectory(radiance-query)
