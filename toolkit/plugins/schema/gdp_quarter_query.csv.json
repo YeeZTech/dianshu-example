@@ -1,0 +1,7 @@
+{
+  "type":"csv",
+  "schema":[
+    {"name":"province_name", "type":"std::string"},
+    {"name":"gdp_quarters", "type":"std::string"}
+  ]
+}
