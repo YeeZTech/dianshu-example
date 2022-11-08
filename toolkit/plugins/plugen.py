@@ -83,11 +83,10 @@ def generate_reader_file(target_dir, name, config):
     pass
 
 
-def build_all(target_dir, config):
+def build_all(ypc_install_dir, target_dir, config):
     build_dir = os.path.join(target_dir, "build")
-    ypc_install_dir = os.environ['YPC_INSTALL_DIR']
     os.mkdir(build_dir)
-    cmd = "cd {0} && cmake -DCMAKE_INSTALL_PREFIX=${1} -DYPC_INSTALL_DIR={1} ../ && make && make install".format(
+    cmd = "cd {0} && cmake -DCMAKE_INSTALL_PREFIX={1} -DYPC_INSTALL_DIR={1} ../ && make && make install".format(
         build_dir, ypc_install_dir)
     os.system(cmd)
     pass
@@ -157,6 +156,8 @@ if __name__ == "__main__":
                         help='plugin output directory')
     parser.add_argument('--config', type=pathlib.Path,
                         help='JSON configuration file')
+    parser.add_argument('--ypc-install-dir', type=pathlib.Path,
+                        help='YPC install directory')
     args = parser.parse_args()
     target_dir = check_target_dir(args.target_dir)
     target_dir = os.path.join(target_dir, args.name)
@@ -172,4 +173,5 @@ if __name__ == "__main__":
     generate_top_cmake(target_dir, args.name)
     generate_reader_file(target_dir, args.name, conf)
     # generate_parser_file(target_dir, args.name, conf)
-    build_all(target_dir, conf)
+    ypc_install_dir = check_target_dir(args.ypc_install_dir)
+    build_all(ypc_install_dir, target_dir, conf)

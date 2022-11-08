@@ -1,0 +1,10 @@
+{
+  "type":"csv",
+  "schema":[
+    {"name":"year_month", "type":"std::string"},
+    {"name":"name", "type":"std::string"},
+    {"name":"area", "type":"std::string"},
+    {"name":"rad", "type":"std::string"},
+    {"name":"rad_perarea", "type":"std::string"}
+  ]
+}
