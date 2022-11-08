@@ -30,21 +30,21 @@ public:
     }
     strs[ str.size() ] = '\0';
     // strcpy( strs, str.c_str() );
-  
+
     char *d = new char[ delim.size() + 1 ];
     for ( int i = 0; i < delim.size(); ++ i ) {
       d[ i ] = delim[ i ];
     }
     d[ delim.size() ] = '\0';
     // strcpy( d, delim.c_str() );
-  
+
     char *p = strtok( strs, d );
     while ( p ) {
       std::string s = p; //分割得到的字符串转换为string类型
       res.push_back( s ); //存入结果数组
       p = strtok( NULL, d );
     }
-  
+
     return res;
   }
 
@@ -65,7 +65,7 @@ public:
     mo.get_engine()->run();
     LOG(INFO) << "do parse done";
 
-    stbox::bytes result( "结果:\n" );
+    stbox::bytes result;
     result += stbox::bytes( "地区名称 ( 省级行政区划 / 中国 ), 年份季度 ( A、B、C、D 分别代表第一、第二、第三、第四季度 --- 如 2022B 表示 2022 年第二季度 ), GDP ( 亿元 ) \n" );
     bool is_found = false;
     for ( auto it : mo.values() ) {

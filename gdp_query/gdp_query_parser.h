@@ -36,8 +36,7 @@ public:
     mo.get_engine()->run();
     LOG(INFO) << "do parse done";
 
-    stbox::bytes result( pkg.get< county_name >() );
-    result += stbox::bytes( "\n" );
+    stbox::bytes result;
     result += stbox::bytes( "地区名称 ( 区/县 ), 年份, GDP ( 万元 ), 第一产业增加值 ( 万元 ), 第二产业增加值 ( 万元 ) , 面积 ( 平方公里 ) \n" );
     bool flag = false;
     int count = 0;
@@ -55,7 +54,7 @@ public:
       temp.emplace_back( temp_temp );
       count ++;
     }
-    std::sort( temp.begin(), temp.end(), []( const std::vector< std::string >& a, const std::vector< std::string >& b ){ 
+    std::sort( temp.begin(), temp.end(), []( const std::vector< std::string >& a, const std::vector< std::string >& b ){
           if ( a[ 0 ] == b[ 0 ] )
             return a[ 1 ] > b[ 1 ];
           else
