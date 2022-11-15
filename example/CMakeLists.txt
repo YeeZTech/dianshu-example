@@ -6,5 +6,8 @@
 #add_subdirectory(medical)
 add_subdirectory(gdp-quarter-query)
 add_subdirectory(gdp_prediction)
+add_subdirectory(gdp_prediction_v2)
 add_subdirectory(gdp_query)
+add_subdirectory(gdp_query_v2)
 add_subdirectory(radiance-query)
+add_subdirectory(radiance-query-v2)

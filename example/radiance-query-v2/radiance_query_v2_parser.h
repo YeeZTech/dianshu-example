@@ -17,11 +17,11 @@ class radiance_query_v2_parser {
 public:
   radiance_query_v2_parser(ypc::data_source<stbox::bytes> *source)
       : m_source(source){};
-  
+
   bool is_ordered_subset( std::string s, std::string p ) {
     if ( s.size() < p.size() )
       return false;
-    
+
     int ps = 0;
     int pp = 0;
     while ( pp < p.size() && ps < s.size() ) {
@@ -47,10 +47,13 @@ public:
     hpda::processor::internal::filter_impl<radiance_query_v2_item_t> match(
         &converter, [&](const radiance_query_v2_item_t &v) {
           std::string first_item = v.get<name>();
-          if ( counter < 246 && is_ordered_subset( first_item, pkg.get< name >() ) ) {
-            counter ++;
+          if (counter < 246 && first_item == pkg.get<name>()) {
+            counter++;
             return true;
           }
+          // if ( counter < 246 && is_ordered_subset( first_item, pkg.get< name
+          // >() ) ) { counter ++; return true;
+          //}
           return false;
         });
 
@@ -79,7 +82,7 @@ public:
       temp_temp.push_back( std::string( it.get< rad_per_area >() ) );
       temp.emplace_back( temp_temp );
     }
-    std::sort( temp.begin(), temp.end(), []( const std::vector< std::string >& a, const std::vector< std::string >& b ){ 
+    std::sort( temp.begin(), temp.end(), []( const std::vector< std::string >& a, const std::vector< std::string >& b ){
           if ( a[ 0 ] == b[ 0 ] )
             return a[ 1 ] > b[ 1 ];
           else

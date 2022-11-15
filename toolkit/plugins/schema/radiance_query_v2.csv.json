@@ -1,0 +1,15 @@
+{
+  "type":"csv",
+  "schema":[
+    {"name":"name", "type":"std::string"},
+    {"name":"year_month", "type":"std::string"},
+    {"name":"level", "type":"std::string"},
+    {"name":"center_longitude", "type":"std::string"},
+    {"name":"center_latitude", "type":"std::string"},
+    {"name":"code", "type":"std::string"},
+    {"name":"parent_code", "type":"std::string"},
+    {"name":"area", "type":"std::string"},
+    {"name":"rad", "type":"std::string"},
+    {"name":"rad_perarea", "type":"std::string"}
+  ]
+}

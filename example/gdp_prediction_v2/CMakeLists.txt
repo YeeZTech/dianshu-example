@@ -1,12 +1,12 @@
 
 set(T_SRCS eparser.cpp)
 
-add_enclave_library(radiance_query_v2_parser SRCS ${T_SRCS}
+add_enclave_library(gdp_prediction_v2_parser SRCS ${T_SRCS}
   EDL ${YPC_INSTALL_DIR}/include/ypc/edl/eparser.edl
   EDL_SEARCH_PATHS ${YPC_INSTALL_DIR}/include/ypc/edl/:${YPC_INSTALL_DIR}/include/ypc/stbox/
   )
 
-target_link_libraries(radiance_query_v2_parser
+target_link_libraries(gdp_prediction_v2_parser
   ypc_stdeth_t
   ypc_gmssl_t
   ypc_stdeth_t
@@ -27,6 +27,6 @@ target_link_libraries(radiance_query_v2_parser
   sgx_tstdc
   )
 
-enclave_sign(radiance_query_v2_parser KEY enclave_private.pem
+enclave_sign(gdp_prediction_v2_parser KEY enclave_private.pem
   CONFIG enclave.config.xml)
-install(FILES ${PROJECT_SOURCE_DIR}/lib/radiance_query_v2_parser.signed.so DESTINATION lib COMPONENT c_example OPTIONAL)
+install(FILES ${PROJECT_SOURCE_DIR}/lib/gdp_prediction_v2_parser.signed.so DESTINATION lib COMPONENT c_example OPTIONAL)
