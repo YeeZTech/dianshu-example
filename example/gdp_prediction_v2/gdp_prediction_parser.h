@@ -10,7 +10,7 @@
 #include <hpda/output/memory_output.h>
 #include <hpda/processor/query/filter.h>
 
-typedef ff::net::ntpackage<0, name> nt_package_t;
+typedef ff::net::ntpackage<0, area_code> nt_package_t;
 
 class gdp_prediction_parser {
 public:
@@ -25,12 +25,10 @@ public:
     LOG(INFO) << "filter_impl";
     hpda::processor::internal::filter_impl<gdp_prediction_item_t> match(
         &converter, [&](const gdp_prediction_item_t &v) {
-          std::string first_item = v.get<name>();
+          std::string first_item = v.get<area_code>();
           // LOG(INFO) << "first: " << first_item;
           // LOG(INFO) << "input: " << v.get<name>();
-          if ( first_item == pkg.get< name >() ) {
-            LOG(INFO) << "-->first: " << first_item;
-            LOG(INFO) << "-->input: " << v.get<name>();
+          if (first_item == pkg.get<area_code>()) {
             return true;
           }
           return false;

@@ -10,7 +10,7 @@
 #include <hpda/output/memory_output.h>
 #include <hpda/processor/query/filter.h>
 
-typedef ff::net::ntpackage<0, county_name > nt_package_t;
+typedef ff::net::ntpackage<0, area_code> nt_package_t;
 
 class gdp_query_parser {
 public:
@@ -25,8 +25,8 @@ public:
     hpda::processor::internal::filter_impl<gdp_query_item_t> match(
         &converter, [&](const gdp_query_item_t &v) {
           counter++;
-          std::string first_item = v.get<county_name>();
-          if ( first_item == pkg.get<county_name>() || first_item.find( pkg.get< county_name >() ) != std::string::npos ) {
+          std::string first_item = v.get<area_code>();
+          if (first_item == pkg.get<area_code>()) {
             return true;
           }
           return false;
@@ -37,7 +37,7 @@ public:
     LOG(INFO) << "do parse done";
 
     stbox::bytes result;
-    result += stbox::bytes( "地区名称 ( 区/县 ), 年份, GDP ( 万元 ), 第一产业增加值 ( 万元 ), 第二产业增加值 ( 万元 ) , 面积 ( 平方公里 ) \n" );
+    result += stbox::bytes("地区名称 ( 区/县 ), 年份, GDP ( 万元 ) \n");
     bool flag = false;
     int count = 0;
     std::vector< std::vector< std::string > > temp;

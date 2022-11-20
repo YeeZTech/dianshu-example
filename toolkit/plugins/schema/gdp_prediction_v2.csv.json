@@ -2,6 +2,7 @@
   "type":"csv",
   "schema":[
     {"name":"name", "type":"std::string"},
+    {"name":"area_code", "type":"std::string"},
     {"name":"gdp", "type":"std::string"}
   ]
 }

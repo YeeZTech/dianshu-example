@@ -11,7 +11,7 @@
 #include <hpda/processor/query/filter.h>
 #include <vector>
 
-typedef ff::net::ntpackage<0, name> nt_package_t;
+typedef ff::net::ntpackage<0, area_code> nt_package_t;
 
 class radiance_query_parser {
 public:
@@ -26,8 +26,8 @@ public:
     hpda::processor::internal::filter_impl<radiance_query_item_t> match(
         &converter, [&](const radiance_query_item_t &v) {
           counter++;
-          std::string first_item = v.get<name>();
-          if ( first_item == pkg.get<name>() || first_item.find( pkg.get< name >() ) != std::string::npos ) {
+          std::string first_item = v.get<area_code>();
+          if (first_item == pkg.get<area_code>()) {
             return true;
           }
           return false;
@@ -53,7 +53,7 @@ public:
       temp_temp.push_back( std::string( it.get< rad_perarea >() ) );
       temp.emplace_back( temp_temp );
     }
-    std::sort( temp.begin(), temp.end(), []( const std::vector< std::string >& a, const std::vector< std::string >& b ){ 
+    std::sort( temp.begin(), temp.end(), []( const std::vector< std::string >& a, const std::vector< std::string >& b ){
           if ( a[ 1 ] == b[ 1 ] )
             return a[ 0 ] > b[ 0 ];
           else

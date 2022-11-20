@@ -2,6 +2,7 @@
   "type":"csv",
   "schema":[
     {"name":"province_name", "type":"std::string"},
+    {"name":"area_code", "type":"std::string"},
     {"name":"gdp_quarters", "type":"std::string"}
   ]
 }

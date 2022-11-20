@@ -13,7 +13,7 @@
 #include <cstring>
 #include <string.h>
 
-typedef ff::net::ntpackage<0, province_name > nt_package_t;
+typedef ff::net::ntpackage<0, area_code> nt_package_t;
 
 class gdp_quarter_query_parser {
 public:
@@ -54,8 +54,8 @@ public:
     auto pkg = ypc::make_package<nt_package_t>::from_bytes(param);
     hpda::processor::internal::filter_impl<gdp_quarter_query_item_t> match(
         &converter, [&](const gdp_quarter_query_item_t &v) {
-          std::string first_item = v.get<province_name>();
-          if ( first_item == pkg.get<province_name>() || first_item.find( pkg.get< province_name >() ) != std::string::npos ) {
+          std::string first_item = v.get<area_code>();
+          if (first_item == pkg.get<area_code>()) {
             return true;
           }
           return false;
