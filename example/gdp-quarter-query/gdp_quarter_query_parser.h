@@ -66,24 +66,23 @@ public:
     LOG(INFO) << "do parse done";
 
     stbox::bytes result;
-    result += stbox::bytes( "地区名称 ( 省级行政区划 / 中国 ), 年份季度 ( A、B、C、D 分别代表第一、第二、第三、第四季度 --- 如 2022B 表示 2022 年第二季度 ), GDP ( 亿元 ) \n" );
+    result += stbox::bytes(
+        "行政区划名称,季度（年份/ABCD：ABCD分别代表第一、第二、第三和第四季度 "
+        "如2022B代表2022年第二季度）,GDP数据（亿元）\n");
     bool is_found = false;
     for ( auto it : mo.values() ) {
       is_found = true;
       std::string pn = it.get< province_name >();
-      LOG(INFO) << pn;
       std::string gq = it.get< gdp_quarters >();
       auto strs = split( gq, ";" );
       for ( auto item : strs ) {
-        LOG(INFO) << item;
         auto info = split( item, ":" );
         std::string tmp = pn + "," + info[ 0 ] + "," + info[ 1 ] + "\n";
-        LOG(INFO) << tmp;
         result += stbox::bytes( tmp );
       }
     }
     if ( !is_found ) {
-      result = stbox::bytes( "您输入的参数不能匹配到对应的地区, 请重新提交\n" );
+      result = stbox::bytes("您输入的参数不能匹配到对应的地区，请重新提交\n");
     }
     return result;
   }

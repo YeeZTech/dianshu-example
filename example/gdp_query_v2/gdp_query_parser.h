@@ -19,7 +19,6 @@ public:
 
   inline stbox::bytes do_parse(const stbox::bytes &param) {
     ypc::to_type<stbox::bytes, gdp_query_item_t> converter(m_source);
-    LOG(INFO) << "into from_bytes";
     auto pkg = ypc::make_package<nt_package_t>::from_bytes(param);
     int counter = 0;
     hpda::processor::internal::filter_impl<gdp_query_item_t> match(
@@ -37,7 +36,8 @@ public:
     LOG(INFO) << "do parse done";
 
     stbox::bytes result;
-    result += stbox::bytes("地区名称 ( 区/县 ), 年份, GDP ( 万元 ) \n");
+    result +=
+        stbox::bytes("行政区划名称,行政区划代码,年份,地区生产总值（万元）\n");
     bool flag = false;
     int count = 0;
     std::vector< std::vector< std::string > > temp;
@@ -46,6 +46,7 @@ public:
         break;
       std::vector< std::string > temp_temp;
       temp_temp.push_back( std::string( it.get< county_name >() ) );
+      temp_temp.push_back(std::string(it.get<area_code>()));
       temp_temp.push_back( std::string( it.get< year >() ) );
       temp_temp.push_back( std::string( it.get< gdp >() ) );
       temp.emplace_back( temp_temp );
@@ -64,10 +65,12 @@ public:
       result += stbox::bytes( it[ 1 ] );
       result += stbox::bytes(",");
       result += stbox::bytes( it[ 2 ] );
+      result += stbox::bytes(",");
+      result += stbox::bytes(it[3]);
       result += stbox::bytes("\n");
     }
     if (!flag) {
-      result = stbox::bytes( "您输入的参数不能匹配到对应的地区, 请重新提交\n" );
+      result = stbox::bytes("您输入的参数不能匹配到对应的地区，请重新提交\n");
     }
     return result;
   }

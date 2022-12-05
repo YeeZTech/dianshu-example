@@ -38,7 +38,9 @@ public:
     LOG(INFO) << "do parse done";
 
     stbox::bytes result;
-    result += stbox::bytes("年份月份( 如: 202206 表示 2022年06月 ), 地区名称, 面积 ( 平方公里 ), 灯光亮度总和 ( nW/cm^2/sr ), 单位面积灯光亮度总和 ( nW/cm^2/sr / 平方公里 )\n");
+    result +=
+        stbox::bytes("行政区划名称,年/月,面积（km^2）,灯光亮度总和（nW/cm^2/"
+                     "sr）,单位面积夜间灯光亮度（nW/cm^2/sr/km^2）\n");
     bool flag = false;
     std::vector< std::vector< std::string > > temp;
     int count = 0;
@@ -73,7 +75,7 @@ public:
       result += stbox::bytes("\n");
     }
     if (!flag) {
-      result = stbox::bytes( "您输入的参数不能匹配到对应的地区, 请重新提交\n" );
+      result = stbox::bytes("您输入的参数不能匹配到对应的地区，请重新提交\n");
     }
     return result;
   }
