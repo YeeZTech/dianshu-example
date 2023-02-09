@@ -37,3 +37,8 @@ bin
 
 *.env
 generate
+
+toolkit/plugins
+dist
+test/integrate
+
