@@ -11,3 +11,5 @@ add_subdirectory(gdp_query)
 add_subdirectory(gdp_query_v2)
 add_subdirectory(radiance-query)
 add_subdirectory(radiance-query-v2)
+
+add_subdirectory(97demo)

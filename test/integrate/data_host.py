@@ -118,6 +118,7 @@ class classic_job:
             json.dump(summary, of)
         self.all_outputs.append(parser_input_file)
         self.all_outputs.append(parser_output_file)
+        self.all_outputs.append('{}.summary.json'.format(self.name))
 
         # 7. call terminus to decrypt
         encrypted_result = summary["encrypted-result"]
