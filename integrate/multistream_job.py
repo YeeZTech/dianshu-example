@@ -33,11 +33,11 @@ class multistream_job:
         sealed_output = data_url + ".sealed.output"
         summary = {}
         summary['data-url'] = data_url
-        summary['plugin-path'] = self.plugin_url
+        summary['plugin-path'] = self.plugin_url[data_url]
         summary['sealed-data-url'] = sealed_data_url
         summary['sealed-output'] = sealed_output
 
-        r = job_step.seal_data(self.crypto, data_url, self.plugin_url,
+        r = job_step.seal_data(self.crypto, data_url, self.plugin_url[data_url],
                                sealed_data_url, sealed_output, data_key_file)
         data_hash = job_step.read_data_hash(sealed_output)
         summary['data-hash'] = data_hash
