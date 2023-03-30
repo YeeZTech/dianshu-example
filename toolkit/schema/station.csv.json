@@ -1,0 +1,12 @@
+{
+  "type":"csv",
+  "schema":[
+    {"name":"ULI", "type":"std::string"},
+    {"name":"LAC", "type":"std::string"},
+    {"name":"longitude", "type":"std::string"},
+    {"name":"latitude", "type":"std::string"},
+    {"name":"position", "type":"std::string"},
+    {"name":"area_code", "type":"std::string"},
+    {"name":"area_name", "type":"std::string"}
+  ]
+}

@@ -39,6 +39,3 @@ bin
 generate
 
 toolkit/plugins
-dist
-test/integrate
-
