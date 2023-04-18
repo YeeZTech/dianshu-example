@@ -1,0 +1,2 @@
+add_executable(decrypt_result decrypt_result.cpp)
+target_link_libraries(decrypt_result core boost_program_options pthread terminus)

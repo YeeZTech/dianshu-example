@@ -1,0 +1,10 @@
+{
+  "type":"csv",
+  "schema":[
+    {"name":"id", "type":"int"},
+    {"name":"company_code", "type":"std::string"},
+    {"name":"tax_income", "type":"float"},
+    {"name":"district_income", "type":"float"},
+    {"name":"year_month", "type":"std::string"}
+  ]
+}

@@ -22,7 +22,7 @@ kmgr_enclave = {
 
 
 def execute_cmd(cmd):
-    print("execute_cmd: {}".format(cmd))
+    # print("execute_cmd: {}".format(cmd))
     p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
     p.wait()
     if p.returncode != 0:
@@ -127,6 +127,14 @@ def iris_data(**kwargs):
 
 def iris_model(**kwargs):
     cmd = os.path.join(ypc_bin, "./iris_gen_model")
+    for k, v in kwargs.items():
+        cmd = cmd + " --{} {}".format(k, v)
+    output = execute_cmd(cmd)
+    return [cmd, output]
+
+
+def decrypt_result(**kwargs):
+    cmd = os.path.join(example_bin, "./decrypt_result")
     for k, v in kwargs.items():
         cmd = cmd + " --{} {}".format(k, v)
     output = execute_cmd(cmd)

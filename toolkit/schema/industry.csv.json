@@ -1,0 +1,13 @@
+{
+  "type":"csv",
+  "schema":[
+    {"name":"industry_id", "type":"char"},
+    {"name":"industry_name", "type":"std::string"},
+    {"name":"industry_major_id", "type":"int"},
+    {"name":"industry_major_name", "type":"std::string"},
+    {"name":"industry_minor_id", "type":"int"},
+    {"name":"industry_minor_name", "type":"std::string"},
+    {"name":"industry_patch_id", "type":"int"},
+    {"name":"industry_patch_name", "type":"std::string"}
+  ]
+}
