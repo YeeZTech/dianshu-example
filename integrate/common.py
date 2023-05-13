@@ -11,6 +11,7 @@ integrate_dir = os.path.dirname(current_file)
 example_dir = os.path.dirname(integrate_dir).replace(" ", "\ ")
 example_bin = os.path.join(example_dir, "./bin")
 example_lib = os.path.join(example_dir, "./lib")
+data_dir = os.path.join(example_dir, "./dataset")
 
 ypc_lib = os.path.join(project.ypc_lib_dir(), "./")
 ypc_bin = os.path.join(ypc_lib, "../bin")

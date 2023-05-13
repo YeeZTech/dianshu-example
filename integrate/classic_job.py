@@ -51,6 +51,13 @@ class classic_job:
         self.all_outputs.append(sealed_data_url)
         self.all_outputs.append(sealed_output)
 
+        # hash sig
+        hash_sig_file = self.data_url + ".hash.sig.json"
+        hash_sig_json = job_step.sign(
+            self.crypto, data_hash, 'hex', data_key_file, hash_sig_file)
+        hash_sig = hash_sig_json['signature']
+        self.all_outputs.append(hash_sig_file)
+
         # use first pkey
         key = job_step.get_first_key(self.crypto)
         pkey = key['public-key']
@@ -80,6 +87,7 @@ class classic_job:
         input_obj = {
             "input_data_url": sealed_data_url,
             "input_data_hash": data_hash,
+            'hash_sig': hash_sig,
             "shu_info": {
                 "shu_pkey": data_shukey_json["public-key"],
                 "encrypted_shu_skey": data_forward_json["encrypted_skey"],
