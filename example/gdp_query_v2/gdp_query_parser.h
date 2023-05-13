@@ -14,8 +14,7 @@ typedef ff::net::ntpackage<0, area_code> nt_package_t;
 
 class gdp_query_parser {
 public:
-  gdp_query_parser(ypc::data_source<stbox::bytes> *source)
-      : m_source(source){};
+  gdp_query_parser(ypc::data_source<stbox::bytes> *source) : m_source(source){};
 
   inline stbox::bytes do_parse(const stbox::bytes &param) {
     ypc::to_type<stbox::bytes, gdp_query_item_t> converter(m_source);
