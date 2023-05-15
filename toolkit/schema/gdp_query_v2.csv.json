@@ -1,0 +1,9 @@
+{
+  "type":"csv",
+  "schema":[
+    {"name":"county_name", "type":"std::string"},
+    {"name":"area_code", "type":"std::string"},
+    {"name":"year", "type":"std::string"},
+    {"name":"gdp", "type":"std::string"}
+  ]
+}
