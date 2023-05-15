@@ -82,7 +82,7 @@ public:
     LOG(INFO) << "do parse done";
 
     stbox::bytes result("风险区域驻留和漫出人员号码分析:\n");
-    int counter = 100;
+    int counter = 10;
     while (counter--) {
       stbox::bytes tmp(8);
       sgx_read_rand(tmp.data(), tmp.size());
