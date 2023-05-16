@@ -23,16 +23,16 @@ public:
     ypc::to_type<stbox::bytes, gdp_query_item_t> converter(
         m_datasources[0].get());
 
-    // auto pkg = ypc::make_package<nt_package_t>::from_bytes(param);
-    nt_package_t pkg;
-    pkg.set<county_name>(std::string((const char *)param.data(), param.size()));
-
+    auto pkg = ypc::make_package<nt_package_t>::from_bytes(param);
+    LOG(INFO) << "county_name: " << pkg.get<::county_name>();
     int counter = 0;
     hpda::processor::internal::filter_impl<gdp_query_item_t> match(
         &converter, [&](const gdp_query_item_t &v) {
           counter++;
           std::string first_item = v.get<county_name>();
+          LOG(INFO) << "item: " << first_item;
           if ( first_item == pkg.get<county_name>() || first_item.find( pkg.get< county_name >() ) != std::string::npos ) {
+            LOG(INFO) << "found";
             return true;
           }
           return false;
