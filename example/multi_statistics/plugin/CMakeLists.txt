@@ -1,0 +1,3 @@
+add_library(multi_statistics_csv_reader SHARED reader.cpp)
+target_link_libraries(multi_statistics_csv_reader pthread ff_net)
+install(TARGETS multi_statistics_csv_reader DESTINATION lib)

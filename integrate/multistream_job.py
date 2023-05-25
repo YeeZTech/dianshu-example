@@ -149,4 +149,4 @@ class multistream_job:
         self.all_outputs.append(decrypted_result)
         self.all_outputs.append("info.json")
         self.all_outputs.append("{}.summary.json".format(self.name))
-        # job_step.remove_files(self.all_outputs)
+        job_step.remove_files(self.all_outputs)
