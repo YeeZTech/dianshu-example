@@ -140,3 +140,11 @@ def decrypt_result(**kwargs):
         cmd = cmd + " --{} {}".format(k, v)
     output = execute_cmd(cmd)
     return [cmd, output]
+
+
+def generate_params(**kwargs):
+    cmd = os.path.join(example_bin, "./param_generator")
+    for k, v in kwargs.items():
+        cmd = cmd + " --{} {}".format(k, v)
+    output = execute_cmd(cmd)
+    return [cmd, output]

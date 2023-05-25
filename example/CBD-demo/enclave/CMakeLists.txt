@@ -11,3 +11,10 @@ add_ypc_applet(company_statistics_parser
   SRCS ${STATISTICS_SRCS})
 enclave_sign(company_statistics_parser KEY enclave_private.pem
   CONFIG enclave.config.xml)
+
+set(JOIN_SRCS company_join_parser.cpp)
+add_ypc_applet(company_join_parser
+  CRYPTO stdeth
+  SRCS ${JOIN_SRCS})
+enclave_sign(company_join_parser KEY enclave_private.pem
+  CONFIG enclave.config.xml)

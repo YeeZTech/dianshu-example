@@ -97,6 +97,10 @@ int main(int argc, char *argv[]) {
                   << std::endl;
       }
     }
+    if (package_type == "summary") {
+      std::cout << std::string((const char *)result.data(), result.size())
+                << std::endl;
+    }
   }
   return 0;
 }
