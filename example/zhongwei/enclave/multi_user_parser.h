@@ -31,7 +31,7 @@ public:
     LOG(INFO) << "do parse";
     LOG(INFO) << "param: " << param;
     auto pkg = ypc::make_package<input_buf_t>::from_bytes(param);
-    LOG(INFO) << "make package done";
+    LOG(INFO) << "make package done, input_buf: " << pkg.get<::input_buf>();
 
     typedef ypc::nt<stbox::bytes> ntt;
     hpda::processor::concat<ntt::data> concator(m_datasources[0].get());
@@ -42,7 +42,7 @@ public:
     ypc::to_type<stbox::bytes, user_item_t> converter(&concator);
     hpda::processor::internal::filter_impl<user_item_t> match(
         &converter, [&](const user_item_t &v) {
-          std::string tel = v.get<::tel>();
+          std::string tel = v.get<::ts>();
           if (tel == pkg.get<input_buf>()) {
             return true;
           }
