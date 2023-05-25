@@ -219,6 +219,20 @@ class job_step:
         with open(allowance_output, 'r') as of:
             return json.load(of)
 
+    def generate_params(company_label_url, company_label_plugin, industry_url, industry_plugin, county_url, county_plugin, params_output):
+        param = {
+            "company-label-url": company_label_url,
+            "company-label-plugin": company_label_plugin,
+            "industry-url": industry_url,
+            "industry-plugin": industry_plugin,
+            "county-url": county_url,
+            "county-plugin": county_plugin,
+            "output": params_output,
+        }
+        r = common.generate_params(**param)
+        with open(params_output, 'r') as of:
+            return json.load(of)
+
     def remove_files(file_list):
         [common.execute_cmd('rm -rf {}'.format(f)) for f in file_list]
 
@@ -317,7 +331,7 @@ class multistream_job:
             allowances.append(allowance_data)
 
 
-if __name__ == "__main__":
+def cbd_1():
     name = "CBD-demo1"
     crypto = "stdeth"
     data_company = os.path.join(common.example_dir, "./dataset/企业信息.csv")
@@ -331,3 +345,33 @@ if __name__ == "__main__":
 
     cj = multistream_job(crypto, name, data, parser, plugin, '00aa', {})
     cj.run()
+
+
+def cbd_join():
+    name = "CBD-demo1"
+    crypto = "stdeth"
+    data_company = os.path.join(common.example_dir, "./dataset/企业信息.csv")
+    data_tax = os.path.join(common.example_dir, "./dataset/税收.csv")
+    data_company_label = os.path.join(
+        common.example_dir, "./dataset/企业类型字典.csv")
+    data_industry = os.path.join(common.example_dir, "./dataset/行业字典.csv")
+    data_county = os.path.join(common.example_dir, "./dataset/街乡字典.csv")
+    data = [data_company, data_tax,
+            data_company_label, data_industry, data_county]
+    parser = os.path.join(common.example_lib, "company_join_parser.signed.so")
+    plugin = {
+        data_company: os.path.join(common.example_lib, "libcompany_reader.so"),
+        data_tax: os.path.join(common.example_lib, "libtax_reader.so"),
+        data_company_label: os.path.join(common.example_lib, "libcompany_label_reader.so"),
+        data_industry: os.path.join(common.example_lib, "libindustry_reader.so"),
+        data_county: os.path.join(common.example_lib, "libcounty_reader.so"),
+    }
+    gp = job_step.generate_params(data_company_label, plugin[data_company_label],
+                                  data_industry, plugin[data_industry], data_county, plugin[data_county], 'params.json')
+
+    cj = multistream_job(crypto, name, data, parser, plugin, gp['params'], {})
+    cj.run()
+
+
+if __name__ == "__main__":
+    cbd_join()

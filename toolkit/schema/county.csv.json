@@ -1,0 +1,7 @@
+{
+  "type":"csv",
+  "schema":[
+    {"name":"county_id", "type":"int"},
+    {"name":"county_name", "type":"std::string"}
+  ]
+}
