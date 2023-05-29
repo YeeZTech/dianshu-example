@@ -1,0 +1,14 @@
+{
+  "type":"csv",
+  "schema":[
+    {"name":"id", "type":"std::string"},
+    {"name":"hylx_ml_id", "type":"std::string"},
+    {"name":"hylx_ml_name", "type":"std::string"},
+    {"name":"hylx_dl_id", "type":"std::string"},
+    {"name":"hylx_dl_name", "type":"std::string"},
+    {"name":"hylx_zl_id", "type":"std::string"},
+    {"name":"hylx_zl_name", "type":"std::string"},
+    {"name":"hylx_xl_id", "type":"std::string"},
+    {"name":"hylx_xl_name", "type":"std::string"}
+  ]
+}

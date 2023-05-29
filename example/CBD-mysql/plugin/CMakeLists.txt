@@ -1,0 +1,19 @@
+add_library(t_org_info_csv_reader SHARED t_org_info_reader.cpp)
+target_link_libraries(t_org_info_csv_reader pthread ff_net)
+install(TARGETS t_org_info_csv_reader DESTINATION lib)
+
+add_library(t_tax_csv_reader SHARED t_tax_reader.cpp)
+target_link_libraries(t_tax_csv_reader pthread ff_net)
+install(TARGETS t_tax_csv_reader DESTINATION lib)
+
+add_library(dic_ent_type_csv_reader SHARED dic_ent_type_reader.cpp)
+target_link_libraries(dic_ent_type_csv_reader pthread ff_net)
+install(TARGETS dic_ent_type_csv_reader DESTINATION lib)
+
+add_library(dic_industry_csv_reader SHARED dic_industry_reader.cpp)
+target_link_libraries(dic_industry_csv_reader pthread ff_net)
+install(TARGETS dic_industry_csv_reader DESTINATION lib)
+
+add_library(dic_region_csv_reader SHARED dic_region_reader.cpp)
+target_link_libraries(dic_region_csv_reader pthread ff_net)
+install(TARGETS dic_region_csv_reader DESTINATION lib)

@@ -1,5 +1,11 @@
-import common
 import json
+import os
+import common
+from datetime import datetime
+
+
+def show_time():
+    return datetime.now().strftime('%Y/%m/%d %H:%M:%S.%f')
 
 
 class job_step:
@@ -27,6 +33,7 @@ class job_step:
         return common.fid_data_provider(**param)
 
     def get_first_key(crypto):
+        return {'public-key': '765f92fcba56939c6f7845bf7cae3c5a2f9490e201e1774330fde9f7cb9d65f8753b6cc7f9bf9aefd54688ba3a8005e2ac8509e80e3575989deb534686e892d4'}
         keys = common.fid_keymgr_list(crypto)
         if len(keys) == 0:
             common.fid_keymgr_create("test", crypto)
@@ -82,7 +89,6 @@ class job_step:
         }
         r = str()
         r = common.fid_terminus(**param)
-        # print("done termins with cmd: {}".format(r[0]))
         with open(param_output_url) as of:
             return json.load(of)
 
@@ -115,7 +121,6 @@ class job_step:
             "output": parser_output_file
         }
         r = common.fid_analyzer(**param)
-        # print("done fid_analyzer with cmd: {}".format(r[0]))
         try:
             with open(parser_output_file) as of:
                 return json.load(of)
@@ -212,9 +217,130 @@ class job_step:
             "output": allowance_output
         }
         r = common.fid_terminus(**param)
-        # print("done generate allowance with cmd: {}".format(r[0]))
         with open(allowance_output, 'r') as of:
             return json.load(of)
 
     def remove_files(file_list):
         [common.execute_cmd('rm -rf {}'.format(f)) for f in file_list]
+
+
+class classic_job:
+    def __init__(self, crypto, name, data_url, parser_url, plugin_url, input_param, config={}):
+        self.crypto = crypto
+        self.name = name
+        self.data_url = data_url
+        self.parser_url = parser_url
+        self.plugin_url = plugin_url
+        self.input = input_param
+        self.all_outputs = list()
+        self.config = config
+
+    def run(self):
+        '''
+        1. call terminus to generate key
+        2. call data provider to seal data
+        3. call terminus to generate forward message
+        4. call terminus to generate request
+        5. call fid_analyzer
+        6. call terminus to decrypt
+        '''
+
+        # 0. generate key
+        data_key_file = self.name + ".data.key.json"
+        data_shukey_json = job_step.gen_key(self.crypto, data_key_file)
+        self.all_outputs.append(data_key_file)
+
+        # 1. generate key
+        key_file = self.name + ".key.json"
+        shukey_json = job_step.gen_key(self.crypto, key_file)
+        self.all_outputs.append(key_file)
+
+        # 2. call data provider to seal data
+        sealed_data_url = self.name + ".sealed"
+        sealed_output = self.name + ".sealed.output"
+        summary = {}
+        summary['data-url'] = self.data_url
+        summary['plugin-path'] = self.plugin_url
+        summary['sealed-data-url'] = sealed_data_url
+        summary['sealed-output'] = sealed_output
+
+        r = job_step.seal_data(self.crypto, self.data_url, self.plugin_url,
+                               sealed_data_url, sealed_output, data_key_file)
+        data_hash = job_step.read_data_hash(sealed_output)
+        summary['data-hash'] = data_hash
+        self.all_outputs.append(sealed_data_url)
+        self.all_outputs.append(sealed_output)
+
+        # use first pkey
+        key = job_step.get_first_key(self.crypto)
+        pkey = key['public-key']
+        summary['tee-pkey'] = key['public-key']
+
+        # 3. call terminus to generate forward message
+        forward_result = self.name + ".shukey.foward.json"
+        data_forward_json = job_step.forward_message(
+            self.crypto, data_key_file, pkey, "", forward_result)
+        enclave_hash = job_step.read_parser_hash(self.parser_url)
+        self.all_outputs.append(forward_result)
+
+        # 4.0 call terminus to generate forward message
+        param_key_forward_result = self.name + ".request.shukey.foward.json"
+        rq_forward_json = job_step.forward_message(
+            self.crypto, key_file, pkey, enclave_hash, param_key_forward_result)
+        self.all_outputs.append(param_key_forward_result)
+
+        # 4.1 call terminus to generate request
+        param_output_url = self.name + "_param.json"
+        param_json = job_step.generate_request(
+            self.crypto, self.input, "hex", key_file, param_output_url, self.config)
+        summary['analyzer-input'] = param_json["encrypted-input"]
+        self.all_outputs.append(param_output_url)
+
+        # 5. call fid_analyzer
+        input_obj = {
+            "input_data_url": sealed_data_url,
+            "input_data_hash": data_hash,
+            "shu_info": {
+                "shu_pkey": data_shukey_json["public-key"],
+                "encrypted_shu_skey": data_forward_json["encrypted_skey"],
+                "shu_forward_signature": data_forward_json["forward_sig"],
+                "enclave_hash": data_forward_json["enclave_hash"]
+            },
+            "public-key": data_shukey_json["public-key"],
+            "tag": "0"
+        }
+        input_data = [input_obj]
+        parser_input_file = self.name + "parser_input.json"
+        parser_output_file = self.name + "parser_output.json"
+        result_json = job_step.fid_analyzer(shukey_json, rq_forward_json, enclave_hash, input_data,
+                                            self.parser_url, pkey, {}, self.crypto, param_json, [], parser_input_file, parser_output_file)
+
+        summary['encrypted-result'] = result_json["encrypted_result"]
+        summary["result-signature"] = result_json["result_signature"]
+        summary["cost-signature"] = result_json["cost_signature"]
+        with open(self.name + ".summary.json", "w") as of:
+            json.dump(summary, of)
+        self.all_outputs.append(parser_input_file)
+        self.all_outputs.append(parser_output_file)
+        self.all_outputs.append(self.name + ".summary.json")
+        self.all_outputs.append("info.json")
+
+        # 6. call terminus to decrypt
+        encrypted_result = summary["encrypted-result"]
+        decrypted_result = self.name + ".result"
+        self.result = job_step.decrypt_result(
+            self.crypto, encrypted_result, key_file, decrypted_result)
+        self.all_outputs.append(decrypted_result)
+        job_step.remove_files(self.all_outputs)
+
+
+if __name__ == "__main__":
+    name = "tax"
+    crypto = "stdeth"
+    data = os.path.join(common.example_dir, "./dataset/税收.csv")
+    parser = os.path.join(common.example_lib, "tax_parser.signed.so")
+    plugin = os.path.join(common.example_lib, "libtax_reader.so")
+
+    cj = classic_job(crypto, name, data, parser, plugin, '00aa')
+    cj.run()
+    print("result is : ", cj.result)

@@ -1,0 +1,8 @@
+{
+  "type":"csv",
+  "schema":[
+    {"name":"id", "type":"std::string"},
+    {"name":"jx_id", "type":"std::string"},
+    {"name":"jx_name", "type":"std::string"}
+  ]
+}

@@ -13,21 +13,6 @@ def get_first_key(crypto):
     return {'public-key': '765f92fcba56939c6f7845bf7cae3c5a2f9490e201e1774330fde9f7cb9d65f8753b6cc7f9bf9aefd54688ba3a8005e2ac8509e80e3575989deb534686e892d4'}
 
 
-def generate_params(company_label_url, company_label_plugin, industry_url, industry_plugin, county_url, county_plugin, params_output):
-    param = {
-        "company-label-url": company_label_url,
-        "company-label-plugin": company_label_plugin,
-        "industry-url": industry_url,
-        "industry-plugin": industry_plugin,
-        "county-url": county_url,
-        "county-plugin": county_plugin,
-        "output": params_output,
-    }
-    r = common.generate_params(**param)
-    with open(params_output, 'r') as of:
-        return json.load(of)
-
-
 class multistream_job:
     def __init__(self, crypto, name, data_urls, parser_url, plugin_url, input_param, config={}):
         self.crypto = crypto
@@ -122,47 +107,30 @@ class multistream_job:
             allowances.append(allowance_data)
 
 
-def cbd_1():
-    name = "CBD-demo1"
+def cbd_mysql():
+    name = "CBD-mysql"
     crypto = "stdeth"
-    data_company = os.path.join(common.example_dir, "./dataset/企业信息.csv")
-    data_tax = os.path.join(common.example_dir, "./dataset/税收.csv")
-    data = [data_company, data_tax]
-    parser = os.path.join(common.example_lib, "company_info_parser.signed.so")
+    data_path = os.path.join(common.example_dir, './example/CBD-mysql/py/')
+    data_t_org_info = os.path.join(data_path, './t_org_info.txt')
+    data_t_tax = os.path.join(data_path, './t_tax.txt')
+    data_dic_ent_type = os.path.join(data_path, './dic_ent_type.txt')
+    data_dic_industry = os.path.join(data_path, './dic_industry.txt')
+    data_dic_region = os.path.join(data_path, './dic_region.txt')
+    data = [data_t_org_info, data_t_tax, data_dic_ent_type,
+            data_dic_industry, data_dic_region]
+    parser = os.path.join(common.example_lib,
+                          "summary_org_info_parser.signed.so")
     plugin = {
-        data_company: os.path.join(common.example_lib, "libcompany_reader.so"),
-        data_tax: os.path.join(common.example_lib, "libtax_reader.so"),
+        data_t_org_info: os.path.join(common.example_lib, "libt_org_info_csv_reader.so"),
+        data_t_tax: os.path.join(common.example_lib, "libt_tax_csv_reader.so"),
+        data_dic_ent_type: os.path.join(common.example_lib, "libdic_ent_type_csv_reader.so"),
+        data_dic_industry: os.path.join(common.example_lib, "libdic_industry_csv_reader.so"),
+        data_dic_region: os.path.join(common.example_lib, "libdic_region_csv_reader.so"),
     }
 
     cj = multistream_job(crypto, name, data, parser, plugin, '00aa', {})
     cj.run()
 
 
-def cbd_join():
-    name = "CBD-demo1"
-    crypto = "stdeth"
-    data_company = os.path.join(common.example_dir, "./dataset/企业信息.csv")
-    data_tax = os.path.join(common.example_dir, "./dataset/税收.csv")
-    data_company_label = os.path.join(
-        common.example_dir, "./dataset/企业类型字典.csv")
-    data_industry = os.path.join(common.example_dir, "./dataset/行业字典.csv")
-    data_county = os.path.join(common.example_dir, "./dataset/街乡字典.csv")
-    data = [data_company, data_tax,
-            data_company_label, data_industry, data_county]
-    parser = os.path.join(common.example_lib, "company_join_parser.signed.so")
-    plugin = {
-        data_company: os.path.join(common.example_lib, "libcompany_reader.so"),
-        data_tax: os.path.join(common.example_lib, "libtax_reader.so"),
-        data_company_label: os.path.join(common.example_lib, "libcompany_label_reader.so"),
-        data_industry: os.path.join(common.example_lib, "libindustry_reader.so"),
-        data_county: os.path.join(common.example_lib, "libcounty_reader.so"),
-    }
-    gp = generate_params(data_company_label, plugin[data_company_label],
-                         data_industry, plugin[data_industry], data_county, plugin[data_county], 'params.json')
-
-    cj = multistream_job(crypto, name, data, parser, plugin, gp['params'], {})
-    cj.run()
-
-
 if __name__ == "__main__":
-    cbd_join()
+    cbd_mysql()

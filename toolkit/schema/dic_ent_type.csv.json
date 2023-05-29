@@ -1,0 +1,11 @@
+{
+  "type":"csv",
+  "schema":[
+    {"name":"id", "type":"std::string"},
+    {"name":"qylx_dl_id", "type":"std::string"},
+    {"name":"qylx_dl_name", "type":"std::string"},
+    {"name":"qylx_xl_id", "type":"std::string"},
+    {"name":"qylx_xl_name", "type":"std::string"},
+    {"name":"qylx_name", "type":"std::string"}
+  ]
+}
