@@ -1,0 +1,13 @@
+{
+  "type":"csv",
+  "schema":[
+    {"name":"sjsw_user_number", "type":"std::string"},
+    {"name":"sjsw_start_time", "type":"int"},
+    {"name":"sjsw_end_time", "type":"int"},
+    {"name":"sjsw_app_id", "type":"int"},
+    {"name":"sjsw_tx_pkts", "type":"int"},
+    {"name":"sjsw_tx_bytes", "type":"int"},
+    {"name":"sjsw_rx_pkts", "type":"int"},
+    {"name":"sjsw_rx_bytes", "type":"int"}
+  ]
+}

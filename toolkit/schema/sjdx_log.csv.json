@@ -1,0 +1,9 @@
+{
+  "type":"csv",
+  "schema":[
+    {"name":"sjdx_user_number", "type":"std::string"},
+    {"name":"sjdx_relate_number", "type":"std::string"},
+    {"name":"sjdx_time", "type":"int"},
+    {"name":"sjdx_date", "type":"std::string"}
+  ]
+}
