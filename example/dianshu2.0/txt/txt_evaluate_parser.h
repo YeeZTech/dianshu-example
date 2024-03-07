@@ -19,27 +19,35 @@ public:
       : m_datasources(source) {}
 
   inline stbox::bytes do_parse(const stbox::bytes &param) {
-    LOG(INFO) << "param: " << param;
     ypc::to_type<stbox::bytes, txt_batch_item_t> converter(
         m_datasources[0].get());
 
-    int counter = 0;
     hpda::processor::internal::filter_impl<txt_batch_item_t> match(
         &converter, [&](const txt_batch_item_t &v) {
-          counter++;
           std::string batch = v.get<::txt_batch>();
-          LOG(INFO) << batch;
           return true;
         });
 
     hpda::output::internal::memory_output_impl<txt_batch_item_t> mo(&match);
     mo.get_engine()->run();
-    LOG(INFO) << "batch: " << counter;
-    LOG(INFO) << "do parse done";
 
-    stbox::bytes result("Fidelius");
+    stbox::bytes result;
+
     for (auto it : mo.values()) {
+        std::string batch = it.get<txt_batch>();
+        size_t batch_length = batch.length();
+
+        std::string first_100 = batch.substr(0, 100);
+    
+        size_t middle_start = batch.length() / 2 - 50;
+        std::string middle_100 = batch.substr(middle_start, 100);
+    
+        std::string last_100 = batch.substr(batch.length() - 100);
+    
+        result += "{\"head\":\"" + first_100 + "\",\"tail\":\"" + last_100 + "\",\"mid\":\"" + middle_100 + "\"}";
+
     }
+
     return result;
   }
 

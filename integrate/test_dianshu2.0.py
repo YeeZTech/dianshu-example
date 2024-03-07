@@ -3,14 +3,12 @@ from classic_job import classic_job
 import os
 import common
 
-def run_one(ele, data):
-    name = ele['name']
+def run_one(name, data, param):
     data_path = os.path.join(common.data_dir, data)
     parser = os.path.join(common.example_lib,
                           '{}_parser.signed.so'.format(name))
     plugin = os.path.join(common.example_lib, 'lib{}_reader.so'.format(name))
-    input_param = ele['param']
-    cj = classic_job('stdeth', name, data_path, parser, plugin, input_param, {
+    cj = classic_job('stdeth', name, data_path, parser, plugin, param, {
         'request-use-js': True
     })
     cj.run()
@@ -18,22 +16,25 @@ def run_one(ele, data):
 
 def main():
     parser = argparse.ArgumentParser(description='Process some integers.')
-    parser.add_argument('--csv', help='Path to the CSV file')
+    parser.add_argument('--function', help='Function to run (csv_evaluate or txt_evaluate)', choices=['csv_evaluate', 'txt_evaluate'])
+    parser.add_argument('--data', help='Path to the data file')
+    parser.add_argument('--param', help='Input parameter')
     args = parser.parse_args()
 
-    if not args.csv:
-        print("Please provide the path to the CSV file using --csv option.")
+    if not args.function:
+        print("Please provide the function name using --function option.")
         return
 
-    l = [
-        {'name': 'csv_evaluate',
-        'param': "data_evaluate",
-        },
-        # {'name': 'txt_evaluate',
-        #  'param': "\"[{\\\"type\\\":\\\"string\\\",\\\"value\\\":\\\"江阴市\\\"}]\"",
-        #  },
-    ]
-    [run_one(ele, args.csv) for ele in l]
+    if not args.data:
+        print("Please provide the path to the data file using --data option.")
+        return
+
+    if args.function == 'csv_evaluate':
+        param = "data_evaluate"
+    elif args.function == 'txt_evaluate':
+        param = "data_evaluate"
+
+    run_one(args.function, args.data, param)
 
 if __name__ == "__main__":
     main()
