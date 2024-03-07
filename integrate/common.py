@@ -23,7 +23,7 @@ kmgr_enclave = {
 
 
 def execute_cmd(cmd):
-    # print("execute_cmd: {}".format(cmd))
+    print("execute_cmd: {}".format(cmd))
     p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
     p.wait()
     if p.returncode != 0:
