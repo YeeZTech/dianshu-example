@@ -28,7 +28,7 @@ public:
         &converter, [&](const csv_line_item_t &v) {
           counter++;
           std::string line = v.get<::csv_line>();
-          LOG(INFO) << line;
+          // LOG(INFO) << line;
           return true;
         });
 
@@ -36,9 +36,89 @@ public:
     mo.get_engine()->run();
     LOG(INFO) << "do parse done";
 
-    stbox::bytes result("Fidelius");
-    for (auto it : mo.values()) {
+    stbox::bytes result;
+    int column = 0;
+    int incomplete_row = 0;
+    for ( auto it : mo.values() ) {
+      auto row = it.get<csv_line>();
+      // LOG(INFO) << "rowdata: " << row;
+      std::vector<std::string> rowVec;
+      std::string temp = "";
+      for (int i = 0; i < row.size(); i++) {
+        if (row[i] == ',') {
+          rowVec.push_back(temp);
+          temp = "";
+        } else {
+          temp += row[i];
+        }
+      }
+      rowVec.push_back(temp);
+      column = rowVec.size();
+      break;
     }
+    
+    std::vector<int> missNumRow(counter, 0);
+    std::vector<int> missNumCol(column, 0); 
+    int tempRow = 0;
+    int totalNulls = 0;
+
+    for ( auto it : mo.values() ) {
+      bool incomplete = false;
+      auto row = it.get<csv_line>();
+      std::vector<std::string> rowVec;
+      std::string temp = "";
+      for (int i = 0; i < row.size(); i++) {
+        if (row[i] == ',') {
+          rowVec.push_back(temp);
+          temp = "";
+        } else {
+          temp += row[i];
+        }
+      }
+      rowVec.push_back(temp);
+      for (int i = 0; i < column; i++) {
+        if (rowVec[i] == "") {
+          missNumCol[i]++;
+          missNumRow[tempRow]++;
+          if(!incomplete){
+            incomplete = true;
+            incomplete_row++;
+          }
+        }
+      }
+      tempRow++;
+    }
+
+    result += stbox::bytes( "{\"rows\":" + std::to_string(counter) + ",");
+    result += stbox::bytes( "\"cols\":" + std::to_string(column) + ",");
+    for(int i = 0; i < column; i++){
+      totalNulls += missNumCol[i];
+    }
+    result += stbox::bytes( "\"totalNulls\":" + std::to_string(totalNulls) + ",");
+    result += stbox::bytes( "\"col_nulls\":[" );
+    for(int i = 0; i < column; i++){
+      result += stbox::bytes( "{\"col\":" + std::to_string(i+1) + ",\"col_null\":"+ std::to_string(missNumCol[i]) + "}");
+      if(i!=column-1){
+        result += stbox::bytes( ",");
+      }
+    }
+    result += stbox::bytes( "],");
+
+
+    result += stbox::bytes( "\"row_nulls\":[" );
+    bool exist = false;
+    for(int i = 0; i < counter; i++){
+      if(missNumRow[i] == 0){
+        continue;
+      }
+      if(exist){
+        result += stbox::bytes( ",");
+      } else {
+        exist = true;
+      }
+      result += stbox::bytes("{\"row\":" + std::to_string(i+1) + ",\"row_null\":"+ std::to_string(missNumRow[i])+"}");
+    }
+    result += stbox::bytes( "]}");
     return result;
   }
 
