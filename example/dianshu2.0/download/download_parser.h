@@ -17,6 +17,7 @@ using ecc = ypc::crypto::eth_sgx_crypto;
 define_nt(param1, std::string);
 define_nt(param2, std::string);
 typedef ff::net::ntpackage<0, ::param1, ::param2> params_pkg_t;
+typedef ff::net::ntpackage<0, ::download_batch> batch_pkg_t;
 
 class download_parser {
 public:
@@ -56,7 +57,9 @@ public:
           std::string batch = v.get<::download_batch>();
           // LOG(INFO) << batch;
           // calculate data hash
-          stbox::bytes b_batch(batch);
+          batch_pkg_t pkg;
+          pkg.set<::download_batch>(batch);
+          auto b_batch = ypc::make_bytes<stbox::bytes>::for_package(pkg);
           stbox::bytes t = result_hash + b_batch;
           ecc::hash_256(t, result_hash);
 
