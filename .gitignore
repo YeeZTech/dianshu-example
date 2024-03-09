@@ -41,3 +41,4 @@ generate
 toolkit/plugins
 integrate/__pycache__/
 integrate/project.py
+integrate/js/node_modules/

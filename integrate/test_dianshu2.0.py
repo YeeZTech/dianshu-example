@@ -14,6 +14,7 @@ def run_one(ele):
     cj = classic_job('stdeth', name, data, parser, plugin, input_param, {
         'request-use-js': True,
         'remove-files': True,
+        'offchain-result': True,
     })
     cj.run()
     print("result is : ", cj.result)
@@ -31,7 +32,7 @@ def main():
         # },
         {'name': 'download',
          'data': 'dianshudata.csv',
-         'param': "\"[{\\\"type\\\":\\\"string\\\",\\\"value\\\":\\\"江阴市\\\"}]\"",
+         'param': "\"[{\\\"type\\\":\\\"string\\\",\\\"value\\\":\\\"arg1\\\"},{\\\"type\\\":\\\"string\\\",\\\"value\\\":\\\"arg2\\\"}]\"",
          },
     ]
     [run_one(ele) for ele in l]

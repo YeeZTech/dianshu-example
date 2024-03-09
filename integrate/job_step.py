@@ -1,4 +1,5 @@
 import common
+import commonjs
 import json
 
 
@@ -81,7 +82,11 @@ class job_step:
             "output": param_output_url
         }
         r = str()
-        r = common.fid_terminus(**param)
+        # r = common.fid_terminus(**param)
+        if 'request-use-js' in config and config['request-use-js']:
+            r = commonjs.fid_terminus(**param)
+        else:
+            r = common.fid_terminus(**param)
         # print("done termins with cmd: {}".format(r[0]))
         with open(param_output_url) as of:
             return json.load(of)

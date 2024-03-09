@@ -77,6 +77,12 @@ class classic_job:
         self.all_outputs.append(param_key_forward_result)
 
         # 4.1 call terminus to generate request
+        if 'offchain-result' in self.config and self.config['offchain-result']:
+            input_params = json.loads(json.loads(self.input))
+            assert len(input_params) is 2
+            input_params[0]['value'] = data_hash
+            input_params[1]['value'] = shukey_json['public-key']
+            self.input = json.dumps(json.dumps(input_params))
         param_output_url = self.name + "_param.json"
         param_json = job_step.generate_request(
             self.crypto, self.input, "text", key_file, param_output_url, self.config)
@@ -116,8 +122,14 @@ class classic_job:
         # 6. call terminus to decrypt
         encrypted_result = summary["encrypted-result"]
         decrypted_result = self.name + ".result"
-        self.result = job_step.decrypt_result(
-            self.crypto, encrypted_result, key_file, decrypted_result)
+        if 'offchain-result' in self.config and self.config['offchain-result']:
+            tmp_skey = job_step.decrypt_result_key(
+                self.crypto, result_json['result_encrypt_key'], key_file, decrypted_result)
+            self.result = job_step.decrypt_result_with_hex(
+                self.crypto, encrypted_result, tmp_skey, decrypted_result)
+        else:
+            self.result = job_step.decrypt_result(
+                self.crypto, encrypted_result, key_file, decrypted_result)
         self.all_outputs.append(decrypted_result)
         if 'remove-files' in self.config and self.config['remove-files']:
             job_step.remove_files(self.all_outputs)
