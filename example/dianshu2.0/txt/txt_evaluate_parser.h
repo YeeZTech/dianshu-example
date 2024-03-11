@@ -1,4 +1,5 @@
 #include "user_type.h"
+#include "string_process.h"
 #include "ypc/core_t/analyzer/data_source.h"
 #include "ypc/stbox/ebyte.h"
 #include "ypc/stbox/stx_common.h"
@@ -101,7 +102,8 @@ public:
         
         tempNO++;
     }
-    result += "{\"head\":\"" + first_100 + "\",\"tail\":\"" + last_100 + "\",\"mid\":\"" + middle_100 + "\"}";
+
+    result += "{\"head\":\"" + process_string(first_100) + "\",\"tail\":\"" + process_string(last_100) + "\",\"mid\":\"" + process_string(middle_100) + "\"}";
     return result;
   }
 

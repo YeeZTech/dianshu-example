@@ -41,6 +41,10 @@ public:
     int incomplete_row = 0;
     for ( auto it : mo.values() ) {
       auto row = it.get<csv_line>();
+      // 空行不做任何处理，直接进入下一行
+      if(row.size() == 0){
+        continue;
+      }
       // LOG(INFO) << "rowdata: " << row;
       std::vector<std::string> rowVec;
       std::string temp = "";
