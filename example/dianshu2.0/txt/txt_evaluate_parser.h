@@ -25,15 +25,17 @@ public:
 
     const int batch_max_size = 32768;
     int counter = 0;
-    int total_size = 0; // 总长度
-    int end_size; // 最后一个batch的长度
+    int total_size = 0; 
+    int end_size; 
 
+    LOG(INFO) << "本地测试内容:" << param;
+    
     hpda::processor::internal::filter_impl<txt_batch_item_t> match(
         &converter, [&](const txt_batch_item_t &v) {
           counter++;
           std::string batch = v.get<::txt_batch>();
-          total_size += batch.length(); // 每个batch的长度累加
-          end_size = batch.length(); // 最后一个batch的长度会在这里覆盖上去
+          total_size += batch.length();
+          end_size = batch.length();
           return true;
         });
     
@@ -43,13 +45,13 @@ public:
     LOG(INFO) << "Total Size: " << total_size;
     LOG(INFO) << "End Size: " << end_size;
 
-    int batch_num = total_size / batch_max_size; // 一共有多少个batch
-    bool need_next_batch = false; // 100个字节是否需要下一个batch
-    int extral_size = 0; // 下一个batch的所需长度
-    int start_pos = total_size / 2 - 50; // 中间的100字节的起始位置
-    int mid_batch_no = start_pos / batch_max_size; // 中间的100字节所在的batch的编号
+    int batch_num = total_size / batch_max_size;
+    bool need_next_batch = false; 
+    int extral_size = 0; 
+    int start_pos = total_size / 2 - 50; 
+    int mid_batch_no = start_pos / batch_max_size; 
     
-    start_pos = start_pos % batch_max_size; // 中间的100字节的起始位置在batch中的位置
+    start_pos = start_pos % batch_max_size; 
 
     LOG(INFO) << "Batch Num: " << batch_num;
     LOG(INFO) << "Start Position: " << start_pos;
@@ -60,7 +62,7 @@ public:
       extral_size = start_pos - (batch_max_size - 100);
     }
 
-    stbox::bytes result;
+    std::string result;
     std::string first_100;
     std::string middle_100;
     std::string last_100;
@@ -74,9 +76,16 @@ public:
         size_t batch_length = batch.length();
 
         if(total_size < 100) {
-          first_100 = batch;
-          middle_100 = batch;
-          last_100 = batch;
+          // 小于100个字节时只取前中后的10%作为结果，最小为1个字节
+          if(batch_length < 10) {
+            first_100 = batch.substr(0, 1);
+            middle_100 = batch.substr(batch_length / 2, 1);
+            last_100 = batch.substr(batch_length-1);
+          } else {
+            first_100 = batch.substr(0, batch_length / 10);
+            middle_100 = batch.substr(batch_length / 2 - batch_length / 20, batch_length / 10);
+            last_100 = batch.substr(batch_length - batch_length / 10);
+          }
           break;
         }
 
@@ -104,7 +113,12 @@ public:
     }
 
     result += "{\"head\":\"" + process_string(first_100) + "\",\"tail\":\"" + process_string(last_100) + "\",\"mid\":\"" + process_string(middle_100) + "\"}";
-    return result;
+    
+    // result += "引号测试:\",反斜线引号测试\\\"";
+
+    LOG(INFO) << "函数内返回Reulst:" << result;
+    
+    return stbox::bytes(result);
   }
 
 protected:

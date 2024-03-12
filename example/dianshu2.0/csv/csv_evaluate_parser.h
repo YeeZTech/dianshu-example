@@ -27,7 +27,7 @@ public:
     hpda::processor::internal::filter_impl<csv_line_item_t> match(
         &converter, [&](const csv_line_item_t &v) {
           counter++;
-          std::string line = v.get<::csv_line>();
+          // std::string line = v.get<::csv_line>();
           // LOG(INFO) << line;
           return true;
         });
@@ -41,10 +41,6 @@ public:
     int incomplete_row = 0;
     for ( auto it : mo.values() ) {
       auto row = it.get<csv_line>();
-      // 空行不做任何处理，直接进入下一行
-      if(row.size() == 0){
-        continue;
-      }
       // LOG(INFO) << "rowdata: " << row;
       std::vector<std::string> rowVec;
       std::string temp = "";

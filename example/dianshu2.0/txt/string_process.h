@@ -13,6 +13,9 @@ inline std::string process_string(const std::string &input) {
         if (c == '\"') {
             result += '\\'; 
         }
+        // if (c>=9 && c<=13){ // 9水平制表 10换行 11垂直制表 12换页 13回车 
+        //     continue;
+        // }
         result += c;
     }
 
