@@ -66,7 +66,7 @@ def main():
         # 'param': "TXT质量评估:小于100字节的内容",
         # },
         
-        # {'name': 'csv_evaluate',
+        # {'name': 'txt_evaluate',
         # 'data': '代码评估测试3.txt',
         # 'param': "TXT质量评估:一个batch内的内容",
         # },
@@ -76,15 +76,15 @@ def main():
         #  'param': "TXT质量评估:多个batch的内容",
         # },
 
-        {'name': 'txt_evaluate',
-        'data': 'txt评估含引号.txt',
-        'param': "TXT质量评估:包含特殊字符的txt内容",
-        },
-
-        # {'name': 'csv_evaluate',
-        # 'data': '企业信息.csv',
-        # 'param': "CSV质量评估",
+        # {'name': 'txt_evaluate',
+        # 'data': 'txt评估含引号.txt',
+        # 'param': "TXT质量评估:包含特殊字符的txt内容",
         # },
+
+        {'name': 'csv_evaluate',
+        'data': 'dianshudata.txt',
+        'param': "CSV质量评估",
+        },
     ]
     [run_one(ele) for ele in l]
 

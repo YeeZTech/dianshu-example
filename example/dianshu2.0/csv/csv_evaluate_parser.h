@@ -57,8 +57,12 @@ public:
       break;
     }
     
-    std::vector<int> missNumRow(counter, 0);
-    std::vector<int> missNumCol(column, 0); 
+    std::vector<int> missNumRow(counter, 0); // 具体行中缺失值的个数
+    std::vector<int> missNumCol(column, 0);  // 具体列中缺失值的个数
+
+    std::vector<int> missNumColCount(1002, 0);  // 有x个缺失值的列数量统计
+    std::vector<int> missNullNumRowCount(1002, 0); // 有x个缺失值的行数量统计
+    
     int tempRow = 0;
     int totalNulls = 0;
 
@@ -89,35 +93,88 @@ public:
       tempRow++;
     }
 
+
+
+
     result += stbox::bytes( "{\"rows\":" + std::to_string(counter) + ",");
     result += stbox::bytes( "\"cols\":" + std::to_string(column) + ",");
+
     for(int i = 0; i < column; i++){
       totalNulls += missNumCol[i];
     }
     result += stbox::bytes( "\"totalNulls\":" + std::to_string(totalNulls) + ",");
-    result += stbox::bytes( "\"col_nulls\":[" );
+
+    // result += stbox::bytes( "\"col_nulls\":[" );
+    // for(int i = 0; i < column; i++){
+    //   result += stbox::bytes( "{\"col\":" + std::to_string(i+1) + ",\"col_null\":"+ std::to_string(missNumCol[i]) + "}");
+    //   if(i!=column-1){
+    //     result += stbox::bytes( ",");
+    //   }
+    // }
+    // result += stbox::bytes( "],");
+
+
+    // result += stbox::bytes( "\"row_nulls\":[" );
+    // bool exist = false;
+    // for(int i = 0; i < counter; i++){
+    //   if(missNumRow[i] == 0){
+    //     continue;
+    //   }
+    //   if(exist){
+    //     result += stbox::bytes( ",");
+    //   } else {
+    //     exist = true;
+    //   }
+    //   result += stbox::bytes("{\"row\":" + std::to_string(i+1) + ",\"row_null\":"+ std::to_string(missNumRow[i])+"}");
+    // }
+
+    missNumColCount[0] = counter;
+
     for(int i = 0; i < column; i++){
-      result += stbox::bytes( "{\"col\":" + std::to_string(i+1) + ",\"col_null\":"+ std::to_string(missNumCol[i]) + "}");
-      if(i!=column-1){
+      if(missNumCol[i] > 1000){
+        missNumColCount[1001]++;
+        missNumColCount[0]--;
+      } else {
+        missNumColCount[missNumCol[i]]++;
+        missNumColCount[0]--;
+      }
+    }
+
+    for(int i = 0; i < counter; i++){
+      if(missNumRow[i] > 1000){
+        missNullNumRowCount[1001]++;
+      } else {
+        missNullNumRowCount[missNumRow[i]]++;
+      }
+    }
+
+    result += stbox::bytes( "\"col_nulls\":[" );
+    for(int i = 0; i < 1002; i++){
+      if(missNumColCount[i] == 0){
+        continue;
+      }
+      result += stbox::bytes( "{\"null_num\":" + std::to_string(i) + ",\"count\":"+ std::to_string(missNumColCount[i]) + "}");
+      if(i!=1001){
         result += stbox::bytes( ",");
       }
     }
     result += stbox::bytes( "],");
 
 
+
     result += stbox::bytes( "\"row_nulls\":[" );
-    bool exist = false;
-    for(int i = 0; i < counter; i++){
-      if(missNumRow[i] == 0){
+    for(int i = 0; i < 1002; i++){
+      if(missNullNumRowCount[i] == 0){
         continue;
       }
-      if(exist){
+      result += stbox::bytes( "{\"null_num\":" + std::to_string(i) + ",\"count\":"+ std::to_string(missNullNumRowCount[i]) + "}");
+      if(i!=1001){
         result += stbox::bytes( ",");
-      } else {
-        exist = true;
       }
-      result += stbox::bytes("{\"row\":" + std::to_string(i+1) + ",\"row_null\":"+ std::to_string(missNumRow[i])+"}");
     }
+
+
+
     result += stbox::bytes( "]}");
     return result;
   }
