@@ -17,12 +17,11 @@ using ecc = ypc::crypto::eth_sgx_crypto;
 define_nt(param1, std::string);
 define_nt(param2, std::string);
 typedef ff::net::ntpackage<0, ::param1, ::param2> params_pkg_t;
-typedef ff::net::ntpackage<0, ::download_batch> batch_pkg_t;
+using ntt = ypc::nt<stbox::bytes>;
 
 class download_parser {
 public:
-  using blockfile_t = ypc::blockfile<0x4788d13e7fefe21f, 1024 * 1024,
-                                     256 * ::ypc::utc::max_item_size>;
+  using blockfile_t = ypc::blockfile<0x4788d13e7fefe21f, 1024 * 1024, 256>;
 
   download_parser(
       std::vector<std::shared_ptr<ypc::data_source_with_dhash>> &source)
@@ -38,7 +37,7 @@ public:
     std::string result_file =
         data_hash.substr(0, 8) + '-' + shu_pkey.substr(0, 8) + ".result.sealed";
 
-    ypc::to_type<stbox::bytes, download_batch_item_t> converter(
+    ypc::to_type<stbox::bytes, data_slice_item_t> converter(
         m_datasources[0].get());
 
     stbox::bytes result_hash;
@@ -51,30 +50,34 @@ public:
     ypc::utc::internal::convert_hex_to_bytes(&shu_pkey[0], shu_pkey.size(),
                                              pkey.data(), pkey.size());
 
-    hpda::processor::internal::filter_impl<download_batch_item_t> match(
-        &converter, [&](const download_batch_item_t &v) {
+    std::vector<stbox::bytes> batch;
+    size_t batch_size = 0;
+    hpda::processor::internal::filter_impl<data_slice_item_t> match(
+        &converter, [&](const data_slice_item_t &v) {
           counter++;
-          std::string batch = v.get<::download_batch>();
-          // LOG(INFO) << batch;
-          // calculate data hash
-          batch_pkg_t pkg;
-          pkg.set<::download_batch>(batch);
-          auto b_batch = ypc::make_bytes<stbox::bytes>::for_package(pkg);
-          stbox::bytes t = result_hash + b_batch;
-          ecc::hash_256(t, result_hash);
+          auto slice = v.get<::data_slice>();
+          batch.push_back(slice);
+          batch_size += slice.size();
+          if (batch_size >= ypc::utc::max_item_size) {
+            write_batch(fw, batch, pkey);
+            batch.clear();
+            batch_size = 0;
+          }
 
-          // encrypt and write to file
-          stbox::bytes cipher;
-          ecc::encrypt_message_with_prefix(
-              pkey, b_batch, ypc::utc::crypto_prefix_arbitrary, cipher);
-          fw.append_item(cipher.data(), cipher.size());
+          // calculate data hash
+          stbox::bytes t = result_hash + slice;
+          ecc::hash_256(t, result_hash);
           return false;
         });
 
-    hpda::output::internal::memory_output_impl<download_batch_item_t> mo(
-        &match);
+    hpda::output::internal::memory_output_impl<data_slice_item_t> mo(&match);
     mo.get_engine()->run();
     LOG(INFO) << "batch count: " << counter;
+    if (!batch.empty()) {
+      write_batch(fw, batch, pkey);
+      batch.clear();
+      batch_size = 0;
+    }
     fw.close();
     LOG(INFO) << "do parse done";
 
@@ -82,6 +85,22 @@ public:
     ypc::utc::internal::convert_bytes_to_hex(
         result_hash.data(), result_hash.size(), result.data(), result.size());
     return result;
+  }
+
+protected:
+  void write_batch(blockfile_t &fw, const std::vector<stbox::bytes> &batch,
+                   const stbox::bytes &public_key) {
+    ntt::batch_data_pkg_t pkg;
+    stbox::bytes s;
+    stbox::bytes batch_str =
+        ypc::make_bytes<stbox::bytes>::for_package<ntt::batch_data_pkg_t,
+                                                   ntt::batch_data>(batch);
+    uint32_t status = ecc::encrypt_message_with_prefix(
+        public_key, batch_str, ypc::utc::crypto_prefix_arbitrary, s);
+    if (status != 0u) {
+      throw std::runtime_error("encrypt message failed!");
+    }
+    fw.append_item((const char *)s.data(), s.size());
   }
 
 protected:
