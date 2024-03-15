@@ -50,8 +50,14 @@ public:
       auto row = it.get<csv_line>();
       // LOG(INFO) << "rowdata: " << row;
 
+      bool betweenQuotes = false;
       for (int i = 0; i < row.size(); i++) {
-        if (row[i] == ',') {
+        if(row[i] == '\"'){
+          betweenQuotes = !betweenQuotes;
+          continue;
+        }
+
+        if (row[i] == ',' && !betweenQuotes) {
           rowVec.push_back(temp); // 逗号分隔的数据存入rowVec
           temp = ""; // 清空temp
         } else {
@@ -98,8 +104,15 @@ public:
 
       int ti = 0; // 记录循环中的列数
 
+      bool betweenQuotes = false;
       for (int i = 0; i < row.size(); i++) {
-        if(row[i] == ','){
+        
+        if(row[i] == '\"'){
+          betweenQuotes = !betweenQuotes;
+          continue;
+        }
+
+        if(row[i] == ',' && !betweenQuotes){
           ti++;
         } else {
           if(rowVecBool[ti] == false){
