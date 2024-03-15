@@ -143,7 +143,9 @@ public:
 
         rowVec += ",";
       }
-      LOG(INFO) << "row" << tempRow << "  rowVec: " << rowVec;
+
+      // 以下代码将行中每列中数据情况输出，1代表不缺失，0代表缺失
+      // LOG(INFO) << "row" << tempRow << "  rowVec: " << rowVec;
 
       tempRow++; // 进入下一行的缺失值计算
     }
