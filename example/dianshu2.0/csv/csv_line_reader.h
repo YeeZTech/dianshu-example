@@ -74,6 +74,14 @@ public:
   virtual int read_item_data(char *buf, int *len) {
     std::string s;
     std::getline(*m_stream.get(), s);
+    // 检查行是否为空，如果是空行则跳过，直接读取下一行
+    while (s.empty()) {
+        if (m_stream->eof()) {
+            // 文件已经结束
+            return -1;
+        }
+        std::getline(*m_stream.get(), s);
+    }
     typedef ff::net::ntpackage<0, ::csv_line> package_t;
     package_t v;
     v.set<::csv_line>(s);
@@ -88,20 +96,22 @@ public:
     }
     return 0;
   }
+
   virtual int close_item_reader() {
     m_stream.reset();
     return 0;
   }
+
   virtual int get_item_number() {
     std::ifstream *is = m_stream.get();
     std::ifstream::pos_type pos = is->tellg();
     is->seekg(0, is->beg);
     uint64_t n = 0;
     std::string s = "s";
-    while (s.size() > 0 && !is->eof()) {
+    while (!s.empty() && !is->eof()) {
       s.clear();
       std::getline(*is, s);
-      if (s.size() > 0) {
+      if (!s.empty()) {
         n++;
       }
     }
