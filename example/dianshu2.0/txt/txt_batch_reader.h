@@ -63,6 +63,7 @@ public:
     if (!m_stream->is_open()) {
       throw std::runtime_error("file not exist");
     }
+    m_max_batch_size = ypc::utc::max_item_size >> 1;
   }
   virtual int reset_for_read() {
     m_stream.reset(new std::ifstream(m_file_path));
@@ -80,7 +81,7 @@ public:
     std::ifstream::pos_type left_size = is->tellg() - cur;
     is->clear();
     is->seekg(cur, is->beg);
-    size_t batch_size = ypc::utc::max_item_size / 2;
+    size_t batch_size = m_max_batch_size;
     if (left_size < batch_size) {
       batch_size = left_size;
     }
@@ -110,7 +111,7 @@ public:
     std::ifstream::pos_type pos = is->tellg();
     is->seekg(0, is->end);
     std::ifstream::pos_type size = is->tellg();
-    size_t batch_size = (ypc::utc::max_item_size / 2);
+    size_t batch_size = m_max_batch_size;
     size_t n = size / batch_size;
     if (size % batch_size) {
       n++;
@@ -122,6 +123,7 @@ public:
   }
 
 protected:
+  size_t m_max_batch_size;
   const std::string m_extra_param;
   std::string m_file_path;
   std::unique_ptr<std::ifstream> m_stream;
