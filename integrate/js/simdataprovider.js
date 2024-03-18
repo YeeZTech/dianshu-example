@@ -1,7 +1,10 @@
 const { program } = require('commander');
 const fs = require('fs');
-const nReadlines = require('n-readlines');
-const DataProvider = require('./dataprovider.js')();
+
+const ME = require("meta-encryptor")
+const {Sealer, ToString} = ME;
+const csv = require('csv-parser');
+const {dataHashOfSealedFile} = ME;
 
 program
   .description('YeeZ Privacy Data Hub')
@@ -32,15 +35,28 @@ if (!options.output) {
   return;
 }
 
-const data_lines = new nReadlines(options.dataUrl);
+//const data_lines = new nReadlines(options.dataUrl);
 // TODO dian public key should specify
-DataProvider.init(data_lines);
+
+//DataProvider.init(data_lines);
 const key_file = JSON.parse(fs.readFileSync(options.usePublickeyFile))
-let all = DataProvider.sealFile(key_file);
 
-fd = fs.openSync(options.sealedDataUrl, 'w');
-let buf = all[0].buffer;
-fs.writeSync(fd, buf, 0, buf.length, 0);
-fs.closeSync(fd);
+async funcrtion sealFile(key, src, dst){
+  let rs = fs.createReadStream(src);
+  let ws = fs.createWriteStream(dst);
+  rs.pipe(new Sealer({keyPair:key})).pipe(ws);
+  await new Promise(resolve=>{
+    ws.on('finish', ()=>{
+      resolve();
+    });
+  });
+}
+(async()=>{
+  await sealFile(key_file, options.dataUrl, options.sealedDataUrl)
+})()
 
-fs.writeFileSync(options.output, all[1]);
+
+let output_content = '';
+output_content += ('public_key = ' + key_file['public-key'] + '\n');
+output_content += ('data_id = ' + dataHashOfSealedFile(options.sealedDataUrl).toString('hex') + '\n');
+fs.writeFileSync(options.output, output_content);

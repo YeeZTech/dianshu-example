@@ -1,7 +1,7 @@
-const YPCCrypto = require('./ypccrypto.js')()
+const ME = require("meta-encryptor")
+const {YPCCrypto, YPCNtObject, checkSealedData, headerAndBlockBufferFromBuffer, dataHashOfSealedFile} = ME;
+
 const keccak256 = require('keccak256')
-const YPCNtObject = require('./ypcntobject.js')()
-const DataProvider = require('./dataprovider.js')()
 
 var argv = require("yargs").argv
 const fs = require('fs')
@@ -99,7 +99,13 @@ function main() {
 
     key_file = JSON.parse(fs.readFileSync(argv.usePrivatekeyFile))
     all_sealed = fs.readFileSync(argv.sealedFile)
-    DataProvider.checkSealedData(key_file, all_sealed)
+    hd = headerAndBlockBufferFromBuffer(all_sealed)
+    h = dataHashOfSealedFile(argv.sealedFile)
+    input_stream = fs.createReadStream(argv.sealedFile)
+    (async()=>{
+      await checkSealedData(key_file, input_stream, hd, h)
+    })();
+    //DataProvider.checkSealedData(key_file, all_sealed)
   }
 }
 
