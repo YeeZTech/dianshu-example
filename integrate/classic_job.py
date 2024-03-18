@@ -77,12 +77,6 @@ class classic_job:
         self.all_outputs.append(param_key_forward_result)
 
         # 4.1 call terminus to generate request
-        if 'offchain-result' in self.config and self.config['offchain-result']:
-            input_params = json.loads(json.loads(self.input))
-            assert len(input_params) is 2
-            input_params[0]['value'] = data_hash
-            input_params[1]['value'] = shukey_json['public-key']
-            self.input = json.dumps(json.dumps(input_params))
         param_output_url = self.name + "_param.json"
         param_json = job_step.generate_request(
             self.crypto, self.input, "text", key_file, param_output_url, self.config)

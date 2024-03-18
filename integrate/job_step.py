@@ -164,8 +164,9 @@ class job_step:
             "output": decrypted_result
         }
         r = common.fid_terminus(**param)
-        with open(decrypted_result) as f:
-            return f.readlines()
+        with open(decrypted_result, 'rb') as f:
+            key = bytearray(f.read())
+            return ''.join(format(x, '02x') for x in key)
 
     def encrypt_message(crypto, shukey_file, msg, output):
         param = {
