@@ -18,7 +18,7 @@ using ntt = ypc::nt<stbox::bytes>;
 
 class download_parser {
 public:
-  using blockfile_t = ypc::blockfile<0x4788d13e7fefe21f, 1024 * 1024, 256>;
+  using blockfile_t = ypc::blockfile<0x4788d13e7fefe21f, 2, 1024 * 1024, 256>;
 
   download_parser(
       std::vector<std::shared_ptr<ypc::data_source_with_dhash>> &source)
@@ -51,7 +51,9 @@ public:
     hpda::processor::internal::filter_impl<data_slice_item_t> match(
         &converter, [&](const data_slice_item_t &v) {
           counter++;
-          auto slice = v.get<::data_slice>();
+          typename ypc::cast_obj_to_package<data_slice_item_t>::type pkg;
+          pkg.set<::data_slice>(v.get<::data_slice>());
+          auto slice = ypc::make_bytes<stbox::bytes>::for_package(pkg);
           batch.push_back(slice);
           batch_size += slice.size();
           if (batch_size >= ypc::utc::max_item_size) {
