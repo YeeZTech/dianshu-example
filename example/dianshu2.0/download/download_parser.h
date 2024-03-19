@@ -14,14 +14,11 @@
 #include <hpda/processor/query/filter.h>
 
 using ecc = ypc::crypto::eth_sgx_crypto;
-define_nt(param1, std::string);
-define_nt(param2, std::string);
-typedef ff::net::ntpackage<0, ::param1, ::param2> params_pkg_t;
 using ntt = ypc::nt<stbox::bytes>;
 
 class download_parser {
 public:
-  using blockfile_t = ypc::blockfile<0x4788d13e7fefe21f, 1024 * 1024, 256>;
+  using blockfile_t = ypc::blockfile<0x4788d13e7fefe21f, 2, 1024 * 1024, 256>;
 
   download_parser(
       std::vector<std::shared_ptr<ypc::data_source_with_dhash>> &source)
@@ -29,13 +26,16 @@ public:
 
   inline stbox::bytes do_parse(const stbox::bytes &param) {
     LOG(INFO) << "params: " << param;
-    auto pkg = ypc::make_package<params_pkg_t>::from_bytes(param);
-    auto data_hash = pkg.get<::param1>();
-    auto shu_pkey = pkg.get<::param2>();
-    LOG(INFO) << "param1: " << data_hash;
-    LOG(INFO) << "param2: " << shu_pkey;
-    std::string result_file =
-        data_hash.substr(0, 8) + '-' + shu_pkey.substr(0, 8) + ".result.sealed";
+
+    stbox::bytes skey;
+    ecc::gen_private_key(skey);
+    stbox::bytes pkey;
+    ecc::generate_pkey_from_skey(skey, pkey);
+
+    std::string pkey_hex(2 * pkey.size(), '0');
+    ypc::utc::internal::convert_bytes_to_hex(
+        pkey.data(), pkey.size(), (uint8_t *)&pkey_hex[0], pkey_hex.size());
+    std::string result_file = pkey_hex.substr(0, 8) + ".result.sealed";
 
     ypc::to_type<stbox::bytes, data_slice_item_t> converter(
         m_datasources[0].get());
@@ -46,16 +46,14 @@ public:
 
     blockfile_t fw;
     fw.open_for_write(result_file.c_str());
-    stbox::bytes pkey(64);
-    ypc::utc::internal::convert_hex_to_bytes(&shu_pkey[0], shu_pkey.size(),
-                                             pkey.data(), pkey.size());
-
     std::vector<stbox::bytes> batch;
     size_t batch_size = 0;
     hpda::processor::internal::filter_impl<data_slice_item_t> match(
         &converter, [&](const data_slice_item_t &v) {
           counter++;
-          auto slice = v.get<::data_slice>();
+          typename ypc::cast_obj_to_package<data_slice_item_t>::type pkg;
+          pkg.set<::data_slice>(v.get<::data_slice>());
+          auto slice = ypc::make_bytes<stbox::bytes>::for_package(pkg);
           batch.push_back(slice);
           batch_size += slice.size();
           if (batch_size >= ypc::utc::max_item_size) {
@@ -81,10 +79,11 @@ public:
     fw.close();
     LOG(INFO) << "do parse done";
 
-    stbox::bytes result(64);
-    ypc::utc::internal::convert_bytes_to_hex(
-        result_hash.data(), result_hash.size(), result.data(), result.size());
-    return result;
+    ntt::offchain_result_package_t pkg;
+    pkg.set<ntt::encrypted_result>(result_hash);
+    pkg.set<ntt::pkey>(pkey);
+    pkg.set<ntt::result_encrypt_key>(skey);
+    return ypc::make_bytes<stbox::bytes>::for_package(pkg);
   }
 
 protected:

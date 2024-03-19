@@ -41,7 +41,7 @@ def fid_terminus(**kwargs):
 
 
 def fid_data_provider(**kwargs):
-    cmd = os.path.join(current_dir, "./js/simdataprovider.js")
+    cmd = os.path.join(integrate_dir, "./js/simdataprovider.js")
     for k, v in kwargs.items():
         cmd = cmd + " --{} {}".format(k, v)
     output = execute_cmd(cmd)

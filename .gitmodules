@@ -1,0 +1,3 @@
+[submodule "integrate/meta-encryptor"]
+	path = integrate/meta-encryptor
+	url = https://gitee.com/YeeZTech/meta-encryptor

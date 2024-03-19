@@ -16,7 +16,7 @@ class job_step:
         with open(shukey_file, 'r') as of:
             return json.load(of)
 
-    def seal_data(crypto, data_url, plugin_url, sealed_data_url, sealed_output, data_key_file):
+    def seal_data(crypto, data_url, plugin_url, sealed_data_url, sealed_output, data_key_file, config):
         param = {
             "crypto": crypto,
             "data-url": data_url,
@@ -25,6 +25,14 @@ class job_step:
             "output": sealed_output,
             "use-publickey-file": data_key_file
         }
+        if 'provider-use-js' in config and config['provider-use-js']:
+            d = {
+                "data-url": data_url,
+                "sealed-data-url": sealed_data_url,
+                "output": sealed_output,
+                "use-publickey-file": data_key_file
+            }
+            return commonjs.fid_data_provider(**d)
         return common.fid_data_provider(**param)
 
     def get_first_key(crypto):
@@ -164,8 +172,9 @@ class job_step:
             "output": decrypted_result
         }
         r = common.fid_terminus(**param)
-        with open(decrypted_result) as f:
-            return f.readlines()
+        with open(decrypted_result, 'rb') as f:
+            key = bytearray(f.read())
+            return ''.join(format(x, '02x') for x in key)
 
     def encrypt_message(crypto, shukey_file, msg, output):
         param = {
