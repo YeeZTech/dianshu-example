@@ -16,7 +16,7 @@ class job_step:
         with open(shukey_file, 'r') as of:
             return json.load(of)
 
-    def seal_data(crypto, data_url, plugin_url, sealed_data_url, sealed_output, data_key_file):
+    def seal_data(crypto, data_url, plugin_url, sealed_data_url, sealed_output, data_key_file, config):
         param = {
             "crypto": crypto,
             "data-url": data_url,
@@ -25,6 +25,14 @@ class job_step:
             "output": sealed_output,
             "use-publickey-file": data_key_file
         }
+        if 'provider-use-js' in config and config['provider-use-js']:
+            d = {
+                "data-url": data_url,
+                "sealed-data-url": sealed_data_url,
+                "output": sealed_output,
+                "use-publickey-file": data_key_file
+            }
+            return commonjs.fid_data_provider(**d)
         return common.fid_data_provider(**param)
 
     def get_first_key(crypto):

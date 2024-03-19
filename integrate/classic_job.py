@@ -44,7 +44,7 @@ class classic_job:
         summary['sealed-output'] = sealed_output
 
         r = job_step.seal_data(self.crypto, self.data_url, self.plugin_url,
-                               sealed_data_url, sealed_output, data_key_file)
+                               sealed_data_url, sealed_output, data_key_file, self.config)
         data_hash = job_step.read_data_hash(sealed_output)
         summary['data-hash'] = data_hash
         print("done seal data with hash: {}, cmd: {}".format(data_hash, r[0]))
