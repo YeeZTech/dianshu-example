@@ -40,7 +40,8 @@ public:
     ypc::to_type<stbox::bytes, data_slice_item_t> converter(
         m_datasources[0].get());
 
-    stbox::bytes result_hash;
+    stbox::bytes data_hash, result_hash;
+    ecc::hash_256(stbox::bytes("Fidelius"), data_hash);
     ecc::hash_256(stbox::bytes("Fidelius"), result_hash);
     int counter = 0;
 
@@ -57,14 +58,14 @@ public:
           batch.push_back(slice);
           batch_size += slice.size();
           if (batch_size >= ypc::utc::max_item_size) {
-            write_batch(fw, batch, pkey);
+            write_batch(fw, batch, pkey, result_hash);
             batch.clear();
             batch_size = 0;
           }
 
           // calculate data hash
-          stbox::bytes t = result_hash + slice;
-          ecc::hash_256(t, result_hash);
+          stbox::bytes t = data_hash + slice;
+          ecc::hash_256(t, data_hash);
           return false;
         });
 
@@ -72,7 +73,7 @@ public:
     mo.get_engine()->run();
     LOG(INFO) << "batch count: " << counter;
     if (!batch.empty()) {
-      write_batch(fw, batch, pkey);
+      write_batch(fw, batch, pkey, result_hash);
       batch.clear();
       batch_size = 0;
     }
@@ -80,7 +81,8 @@ public:
     LOG(INFO) << "do parse done";
 
     ntt::offchain_result_package_t pkg;
-    pkg.set<ntt::encrypted_result>(result_hash);
+    pkg.set<ntt::encrypted_result>(data_hash);
+    pkg.set<ntt::encrypted_result_hash>(result_hash);
     pkg.set<ntt::pkey>(pkey);
     pkg.set<ntt::result_encrypt_key>(skey);
     return ypc::make_bytes<stbox::bytes>::for_package(pkg);
@@ -88,7 +90,7 @@ public:
 
 protected:
   void write_batch(blockfile_t &fw, const std::vector<stbox::bytes> &batch,
-                   const stbox::bytes &public_key) {
+                   const stbox::bytes &public_key, stbox::bytes &result_hash) {
     ntt::batch_data_pkg_t pkg;
     stbox::bytes s;
     stbox::bytes batch_str =
@@ -99,6 +101,9 @@ protected:
     if (status != 0u) {
       throw std::runtime_error("encrypt message failed!");
     }
+    // calculate result hash
+    stbox::bytes t = result_hash + s;
+    ecc::hash_256(t, result_hash);
     fw.append_item((const char *)s.data(), s.size());
   }
 
