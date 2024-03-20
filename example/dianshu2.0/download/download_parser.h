@@ -35,7 +35,7 @@ public:
     std::string pkey_hex(2 * pkey.size(), '0');
     ypc::utc::internal::convert_bytes_to_hex(
         pkey.data(), pkey.size(), (uint8_t *)&pkey_hex[0], pkey_hex.size());
-    std::string result_file = pkey_hex.substr(0, 8) + ".result.sealed";
+    std::string result_file = pkey_hex.substr(0, 16) + ".sealed";
 
     ypc::to_type<stbox::bytes, data_slice_item_t> converter(
         m_datasources[0].get());
