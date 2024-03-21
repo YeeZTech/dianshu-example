@@ -87,10 +87,24 @@ def main():
         # 'data': 'txt评估含引号.txt',
         # 'param': "TXT质量评估:包含特殊字符的txt内容",
         # },
+
+        # {'name': 'csv_evaluate',
+        # 'data': 'API_NY.GDP.MKTP.CD_DS2_zh_csv_v2_4177.csv',
+        # 'param': "CSV质量评估:每个字段都被引号包括, 且在数据集前存在描述以及空行",
+        # },
+
         {'name': 'csv_evaluate',
-        'data': 'dianshudata.txt',
-        'param': "CSV质量评估",
+        'data': 'dianshudata2.csv',
+        'param': "CSV质量评估:正常数据缺失情况",
         },
+
+        # {'name': 'csv_evaluate',
+        # 'data': 'dianshudata3.csv',
+        # 'param': "CSV质量评估:列数超过1000",
+        # },
+
+
+
     ]
     [run_one(ele) for ele in l]
 

@@ -221,9 +221,15 @@ public:
         continue;
       }
       result += stbox::bytes( "{\"null_num\":" + std::to_string(i) + ",\"count\":"+ std::to_string(missNumColCount[i]) + "}");
-      if(i!=1001){
-        result += stbox::bytes( ",");
+      
+
+      for(int i = i+1; i < 1002; i++){
+        if(missNumColCount[i] != 0){
+          result += stbox::bytes( ",");
+          break;
+        }
       }
+
     }
     result += stbox::bytes( "],");
 
@@ -235,8 +241,12 @@ public:
         continue;
       }
       result += stbox::bytes( "{\"null_num\":" + std::to_string(i) + ",\"count\":"+ std::to_string(missNullNumRowCount[i]) + "}");
-      if(i!=1001){
-        result += stbox::bytes( ",");
+      
+      for(int i = i+1; i < 1002; i++){
+        if(missNullNumRowCount[i] != 0){
+          result += stbox::bytes( ",");
+          break;
+        }
       }
     }
 
