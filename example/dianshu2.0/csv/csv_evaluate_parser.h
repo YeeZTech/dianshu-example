@@ -37,62 +37,63 @@ public:
     mo.get_engine()->run();
     LOG(INFO) << "do parse done";
 
-    stbox::bytes result; // 返回结果
-    int column = 0; // 列数
-    int tCol = 0; // 临时列数
-    int tRow = 0; // 临时行数
-    int MaxColRowStart; // 最大列数的起始行
+    stbox::bytes result;    // 返回结果
+    int column = 0;         // 列数
+    int tCol = 0;           // 临时列数
+    int tRow = 0;           // 临时行数
+    int MaxColRowStart;     // 最大列数的起始行
     int incomplete_row = 0; // 不完整的行数，暂时没在结果中返回
-    
+
     std::vector<std::string> rowVec; //存储行中被逗号分隔的数据，用于计算列数
     std::string temp = "";
-    for ( auto it : mo.values() ) {
+    for (auto it : mo.values()) {
       auto row = it.get<csv_line>();
       // LOG(INFO) << "rowdata: " << row;
 
       bool betweenQuotes = false;
       for (int i = 0; i < row.size(); i++) {
-        if(row[i] == '\"'){
+        if (row[i] == '\"') {
           betweenQuotes = !betweenQuotes;
           continue;
         }
 
         if (row[i] == ',' && !betweenQuotes) {
           rowVec.push_back(temp); // 逗号分隔的数据存入rowVec
-          temp = ""; // 清空temp
+          temp = "";              // 清空temp
         } else {
-          temp += row[i]; 
+          temp += row[i];
         }
       }
       rowVec.push_back(temp); // 最后一个逗号分隔的数据存入rowVec
-      tCol = rowVec.size(); // 计算列数
+      tCol = rowVec.size();   // 计算列数
 
       if (tCol > column) {
         column = tCol; // 记录最大列数
-        MaxColRowStart = tRow; // 记录最大列数的起始行,行数是从0开始的，所以第三行为最大列的话这里应该是2
+        MaxColRowStart =
+            tRow; // 记录最大列数的起始行,行数是从0开始的，所以第三行为最大列的话这里应该是2
       }
 
-      // LOG(INFO) << "tCol: " << tCol << "   MaxColRowStart: " << MaxColRowStart;
-      
-      rowVec.clear(); // 清空rowVec
-      tRow++; // 进入下一行的列数计算
+      // LOG(INFO) << "tCol: " << tCol << "   MaxColRowStart: " <<
+      // MaxColRowStart;
 
+      rowVec.clear(); // 清空rowVec
+      tRow++;         // 进入下一行的列数计算
     }
 
     LOG(INFO) << "MaxColRowStart: " << MaxColRowStart;
     LOG(INFO) << "column: " << column;
-    
+
     std::vector<int> missNumRow(counter, 0); // 第x列缺失y行
     std::vector<int> missNumCol(column, 0);  // 第p行缺失q列
 
     std::vector<int> missNullNumRowCount(1002, 0); // 有y个缺失值的行数量统计
-    std::vector<int> missNumColCount(1002, 0);  // 有q个缺失值的列数量统计
+    std::vector<int> missNumColCount(1002, 0); // 有q个缺失值的列数量统计
 
-    int tempRow = 0; // 记录循环中的行数
+    int tempRow = 0;    // 记录循环中的行数
     int totalNulls = 0; // 总缺失值数量
 
-    for ( auto it : mo.values() ) {
-      if(tempRow < MaxColRowStart){
+    for (auto it : mo.values()) {
+      if (tempRow < MaxColRowStart) {
         tempRow++;
         continue;
       }
@@ -100,22 +101,24 @@ public:
       bool incomplete = false;
       auto row = it.get<csv_line>(); // 获取一整行数据
 
-      std::vector<bool> rowVecBool(column, false); // 记录行中每列的缺失值情况，默认为缺失(false),不缺失时置为true
+      std::vector<bool> rowVecBool(
+          column,
+          false); // 记录行中每列的缺失值情况，默认为缺失(false),不缺失时置为true
 
       int ti = 0; // 记录循环中的列数
 
       bool betweenQuotes = false;
       for (int i = 0; i < row.size(); i++) {
-        
-        if(row[i] == '\"'){
+
+        if (row[i] == '\"') {
           betweenQuotes = !betweenQuotes;
           continue;
         }
 
-        if(row[i] == ',' && !betweenQuotes){
+        if (row[i] == ',' && !betweenQuotes) {
           ti++;
         } else {
-          if(rowVecBool[ti] == false){
+          if (rowVecBool[ti] == false) {
             rowVecBool[ti] = true;
           }
         }
@@ -123,19 +126,19 @@ public:
 
       for (int i = 0; i < column; i++) {
         if (!rowVecBool[i]) {
-          missNumCol[i]++; // 第i列++
+          missNumCol[i]++;       // 第i列++
           missNumRow[tempRow]++; // 第tempRow行++
 
-          if(!incomplete){
+          if (!incomplete) {
             incomplete = true;
             incomplete_row++; // 不完整行，暂时没在结果中返回
           }
         }
       }
 
-      std::string rowVec="";
-      for(int i =0; i<column; i++){        
-        if(rowVecBool[i]){
+      std::string rowVec = "";
+      for (int i = 0; i < column; i++) {
+        if (rowVecBool[i]) {
           rowVec += "1";
         } else {
           rowVec += "0";
@@ -150,31 +153,33 @@ public:
       tempRow++; // 进入下一行的缺失值计算
     }
 
+    result += stbox::bytes(
+        "{\"rows\":" + std::to_string(counter - MaxColRowStart) + ",");
+    result += stbox::bytes("\"cols\":" + std::to_string(column) + ",");
 
-    result += stbox::bytes( "{\"rows\":" + std::to_string(counter - MaxColRowStart) + ",");
-    result += stbox::bytes( "\"cols\":" + std::to_string(column) + ",");
-
-    for(int i = 0; i < column; i++){
+    for (int i = 0; i < column; i++) {
       totalNulls += missNumCol[i];
     }
-    result += stbox::bytes( "\"totalNulls\":" + std::to_string(totalNulls) + ",");
+    result +=
+        stbox::bytes("\"totalNulls\":" + std::to_string(totalNulls) + ",");
 
-    std::string nullProportion = std::to_string(((totalNulls*10000) / ((counter - MaxColRowStart) * column)) / 100.0);
+    std::string nullProportion = std::to_string(
+        ((totalNulls * 10000) / ((counter - MaxColRowStart) * column)) / 100.0);
 
     // 缺失值比例(保留两位小数)
-    result += stbox::bytes( "\"NullProportion\":" + nullProportion.substr(0, nullProportion.length() - 4) + ",");
-
-
+    result += stbox::bytes(
+        "\"NullProportion\":" +
+        nullProportion.substr(0, nullProportion.length() - 4) + ",");
 
     // result += stbox::bytes( "\"col_nulls\":[" );
     // for(int i = 0; i < column; i++){
-    //   result += stbox::bytes( "{\"col\":" + std::to_string(i+1) + ",\"col_null\":"+ std::to_string(missNumCol[i]) + "}");
+    //   result += stbox::bytes( "{\"col\":" + std::to_string(i+1) +
+    //   ",\"col_null\":"+ std::to_string(missNumCol[i]) + "}");
     //   if(i!=column-1){
     //     result += stbox::bytes( ",");
     //   }
     // }
     // result += stbox::bytes( "],");
-
 
     // result += stbox::bytes( "\"row_nulls\":[" );
     // bool exist = false;
@@ -187,13 +192,14 @@ public:
     //   } else {
     //     exist = true;
     //   }
-    //   result += stbox::bytes("{\"row\":" + std::to_string(i+1) + ",\"row_null\":"+ std::to_string(missNumRow[i])+"}");
+    //   result += stbox::bytes("{\"row\":" + std::to_string(i+1) +
+    //   ",\"row_null\":"+ std::to_string(missNumRow[i])+"}");
     // }
 
     missNumColCount[0] = column;
 
-    for(int i = 0; i < column; i++){
-      if(missNumCol[i] > 1000){
+    for (int i = 0; i < column; i++) {
+      if (missNumCol[i] > 1000) {
         missNumColCount[1001]++;
         missNumColCount[0]--;
       } else {
@@ -202,57 +208,55 @@ public:
       }
     }
 
-    for(int i = 0; i < counter; i++){
-      
-      if(i<MaxColRowStart){
+    for (int i = 0; i < counter; i++) {
+
+      if (i < MaxColRowStart) {
         continue;
       }
 
-      if(missNumRow[i] > 1000){
+      if (missNumRow[i] > 1000) {
         missNullNumRowCount[1001]++;
       } else {
         missNullNumRowCount[missNumRow[i]]++;
       }
     }
 
-    result += stbox::bytes( "\"col_nulls\":[" );
-    for(int i = 0; i < 1002; i++){
-      if(missNumColCount[i] == 0){
+    result += stbox::bytes("\"col_nulls\":[");
+    for (int i = 0; i < 1002; i++) {
+      if (missNumColCount[i] == 0) {
         continue;
       }
-      result += stbox::bytes( "{\"null_num\":" + std::to_string(i) + ",\"count\":"+ std::to_string(missNumColCount[i]) + "}");
-      
+      result +=
+          stbox::bytes("{\"null_num\":" + std::to_string(i) + ",\"count\":" +
+                       std::to_string(missNumColCount[i]) + "}");
 
-      for(int j = i+1; j < 1002; j++){
-        if(missNumColCount[j] != 0){
-          result += stbox::bytes( ",");
-          break;
-        }
-      }
-
-    }
-    result += stbox::bytes( "],");
-
-
-
-    result += stbox::bytes( "\"row_nulls\":[" );
-    for(int i = 0; i < 1002; i++){
-      if(missNullNumRowCount[i] == 0){
-        continue;
-      }
-      result += stbox::bytes( "{\"null_num\":" + std::to_string(i) + ",\"count\":"+ std::to_string(missNullNumRowCount[i]) + "}");
-      
-      for(int j = i+1; j < 1002; j++){
-        if(missNullNumRowCount[j] != 0){
-          result += stbox::bytes( ",");
+      for (int j = i + 1; j < 1002; j++) {
+        if (missNumColCount[j] != 0) {
+          result += stbox::bytes(",");
           break;
         }
       }
     }
+    result += stbox::bytes("],");
 
+    result += stbox::bytes("\"row_nulls\":[");
+    for (int i = 0; i < 1002; i++) {
+      if (missNullNumRowCount[i] == 0) {
+        continue;
+      }
+      result +=
+          stbox::bytes("{\"null_num\":" + std::to_string(i) + ",\"count\":" +
+                       std::to_string(missNullNumRowCount[i]) + "}");
 
+      for (int j = i + 1; j < 1002; j++) {
+        if (missNullNumRowCount[j] != 0) {
+          result += stbox::bytes(",");
+          break;
+        }
+      }
+    }
 
-    result += stbox::bytes( "]}");
+    result += stbox::bytes("]}");
     return result;
   }
 
