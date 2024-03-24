@@ -38,6 +38,7 @@ public:
     auto u32s = to_u32string((uint8_t *)s.c_str(), s.size());
 
     json::JSON res;
+    res["total"] = std::to_string(u32s.size());
     handle_txt_evaluate(u32s, res);
     return stbox::bytes(res.dump());
   }
