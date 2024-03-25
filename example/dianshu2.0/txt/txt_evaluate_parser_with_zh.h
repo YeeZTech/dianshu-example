@@ -71,22 +71,14 @@ protected:
     }
     return s;
   }
-  void handle_txt_evaluate_with_offset(const std::u32string &u32s,
-                                       json::JSON &res, size_t head_s,
-                                       size_t head_e, size_t mid_s,
-                                       size_t mid_e, size_t tail_s,
-                                       size_t tail_e) {
-    res["head"] = get_u32s_interval(u32s, head_s, head_e);
-    res["mid"] = get_u32s_interval(u32s, mid_s, mid_e);
-    res["tail"] = get_u32s_interval(u32s, tail_s, tail_e);
-  }
   void handle_txt_evaluate(const std::u32string &u32s, json::JSON &res) {
     size_t words_cnt = u32s.size();
     size_t actual_words_cnt = std::min(size_t(150), size_t(0.1 * words_cnt));
-    handle_txt_evaluate_with_offset(u32s, res, 0, actual_words_cnt,
-                                    words_cnt / 2 - actual_words_cnt,
-                                    words_cnt / 2 + actual_words_cnt,
-                                    words_cnt - actual_words_cnt, words_cnt);
+    res["head"] = get_u32s_interval(u32s, 0, actual_words_cnt);
+    res["mid"] = get_u32s_interval(u32s, words_cnt / 2 - actual_words_cnt,
+                                   words_cnt / 2 + actual_words_cnt);
+    res["tail"] =
+        get_u32s_interval(u32s, words_cnt - actual_words_cnt, words_cnt);
   }
 
   std::u32string to_u32string(uint8_t *arr, size_t len) {
