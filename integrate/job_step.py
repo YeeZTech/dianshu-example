@@ -99,7 +99,7 @@ class job_step:
         with open(param_output_url) as of:
             return json.load(of)
 
-    def fid_analyzer(shukey_json, rq_forward_json, enclave_hash, input_data, parser_url, dian_pkey, model, crypto, param_json, allowances, parser_input_file, parser_output_file):
+    def fid_analyzer(config, shukey_json, rq_forward_json, enclave_hash, input_data, parser_url, dian_pkey, model, crypto, param_json, allowances, parser_input_file, parser_output_file):
         parser_input = {
             "shu_info": {
                 "shu_pkey": shukey_json["public-key"],
@@ -127,7 +127,10 @@ class job_step:
             "input": parser_input_file,
             "output": parser_output_file
         }
-        r = common.fid_analyzer(**param)
+        if config['analyzer-type'] == 'fid_analyzer':
+            r = common.fid_analyzer(**param)
+        elif config['analyzer-type'] == 'dianshu_analyzer':
+            r = common.dianshu_analyzer(**param)
         # print("done fid_analyzer with cmd: {}".format(r[0]))
         try:
             with open(parser_output_file) as of:
@@ -137,16 +140,16 @@ class job_step:
             with open(parser_output_file) as of:
                 return of.readlines()
 
-    def decrypt_result(crypto, encrypted_result, shukey_file, decrypted_result):
+    def decrypt_result(crypto, encrypted_result_file, shukey_file, decrypted_result_file):
         param = {
             "crypto": crypto,
             "decrypt": "",
-            "use-param": encrypted_result,
+            "use-param-file": encrypted_result_file,
             "use-privatekey-file": shukey_file,
-            "output": decrypted_result
+            "output": decrypted_result_file
         }
         r = common.fid_terminus(**param)
-        with open(decrypted_result) as f:
+        with open(decrypted_result_file) as f:
             return f.readlines()
 
     def decrypt_result_key(crypto, encrypted_result, shukey_file, decrypted_result):
@@ -163,16 +166,16 @@ class job_step:
             return ''.join(format(x, '02x') for x in key)
             # return f.readlines()
 
-    def decrypt_result_with_hex(crypto, encrypted_result, shukey, decrypted_result):
+    def decrypt_result_with_hex(crypto, encrypted_result_file, shukey, decrypted_result_file):
         param = {
             "crypto": crypto,
             "decrypt": "",
-            "use-param": encrypted_result,
+            "use-param-file": encrypted_result_file,
             "use-privatekey-hex": shukey,
-            "output": decrypted_result
+            "output": decrypted_result_file
         }
         r = common.fid_terminus(**param)
-        with open(decrypted_result, 'rb') as f:
+        with open(decrypted_result_file, 'rb') as f:
             key = bytearray(f.read())
             return ''.join(format(x, '02x') for x in key)
 

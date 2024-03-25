@@ -3,6 +3,7 @@ import json
 from job_step import job_step
 
 
+# TODO: not compatible for all integrate tests
 class classic_job:
     def __init__(self, crypto, name, data_url, parser_url, plugin_url, input_param, config={}):
         self.crypto = crypto
@@ -100,8 +101,8 @@ class classic_job:
         input_data = [input_obj]
         parser_input_file = self.name + "parser_input.json"
         parser_output_file = self.name + "parser_output.json"
-        result_json = job_step.fid_analyzer(shukey_json, rq_forward_json, enclave_hash, input_data,
-                                            self.parser_url, pkey, {}, self.crypto, param_json, [], parser_input_file, parser_output_file)
+        result_json = job_step.fid_analyzer(self.config, shukey_json, rq_forward_json, enclave_hash, input_data, self.parser_url, pkey, {
+        }, self.crypto, param_json, [], parser_input_file, parser_output_file)
 
         summary['encrypted-result'] = result_json["encrypted_result"]
         summary["result-signature"] = result_json["result_signature"]
@@ -115,15 +116,20 @@ class classic_job:
 
         # 6. call terminus to decrypt
         encrypted_result = summary["encrypted-result"]
+        encrypted_result_file = self.name + ".encrypted.result"
+        with open(encrypted_result_file, 'w') as f:
+            f.write(encrypted_result)
+        f.close()
         decrypted_result = self.name + ".result"
         if 'offchain-result' in self.config and self.config['offchain-result']:
             tmp_skey = job_step.decrypt_result_key(
                 self.crypto, result_json['result_encrypt_key'], key_file, decrypted_result)
             self.result = job_step.decrypt_result_with_hex(
-                self.crypto, encrypted_result, tmp_skey, decrypted_result)
+                self.crypto, encrypted_result_file, tmp_skey, decrypted_result)
         else:
             self.result = job_step.decrypt_result(
-                self.crypto, encrypted_result, key_file, decrypted_result)
+                self.crypto, encrypted_result_file, key_file, decrypted_result)
+        self.all_outputs.append(encrypted_result_file)
         self.all_outputs.append(decrypted_result)
         if 'remove-files' in self.config and self.config['remove-files']:
             job_step.remove_files(self.all_outputs)

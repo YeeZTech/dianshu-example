@@ -118,6 +118,15 @@ def fid_analyzer(**kwargs):
     return [cmd, output]
 
 
+def dianshu_analyzer(**kwargs):
+    cmd = os.path.join(example_bin, "./dianshu_analyzer")
+    cmd = "GLOG_logtostderr=1 " + cmd
+    for k, v in kwargs.items():
+        cmd = cmd + " --{} {}".format(k, v)
+    output = execute_cmd(cmd)
+    return [cmd, output]
+
+
 def iris_data(**kwargs):
     cmd = os.path.join(ypc_bin, "./iris_gen_classify_input")
     for k, v in kwargs.items():
