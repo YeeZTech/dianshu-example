@@ -77,6 +77,7 @@ uint32_t remove_file(const std::string &filename) {
   }
   return 0;
 }
+std::unique_ptr<uint8_t[]> g_mem_buf;
 uint32_t ocall_get_frame(const char *ifs, uint32_t ifs_size, uint8_t **data,
                          uint32_t *len) {
   cv::VideoCapture cap(ifs);
@@ -114,9 +115,9 @@ uint32_t ocall_get_frame(const char *ifs, uint32_t ifs_size, uint8_t **data,
   pkg.set<::video_frame>(buf);
   auto b = ypc::make_bytes<ypc::bytes>::for_package(pkg);
   LOG(INFO) << "serialized len: " << b.size();
-  auto ptr = std::unique_ptr<uint8_t[]>(new uint8_t[b.size()]);
-  memcpy(ptr.get(), b.data(), b.size());
-  *data = ptr.get();
+  g_mem_buf = std::unique_ptr<uint8_t[]>(new uint8_t[b.size()]);
+  memcpy(g_mem_buf.get(), b.data(), b.size());
+  *data = g_mem_buf.get();
   *len = b.size();
 
   cap.release();

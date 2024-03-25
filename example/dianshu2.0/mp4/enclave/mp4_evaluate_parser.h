@@ -58,7 +58,7 @@ public:
     LOG(INFO) << "do parse done";
 
     json::JSON res;
-    const int frame_capture_len = 1;
+    const int frame_capture_len = 3;
     for (int i = 0; i < frame_capture_len; i++) {
       uint8_t *data;
       uint32_t len;
