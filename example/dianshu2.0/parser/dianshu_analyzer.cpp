@@ -1,5 +1,5 @@
-#include "parser/iodef.h"
-#include "parser/sgx_bridge.h"
+#include "iodef.h"
+#include "sgx_bridge.h"
 #include "ypc/core/configuration.h"
 #include "ypc/core/ntobject_file.h"
 #include "ypc/core/sealed_file.h"

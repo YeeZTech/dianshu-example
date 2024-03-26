@@ -1,36 +1,19 @@
-add_subdirectory(enclave)
+set(T_SRCS eparser.cpp base64.cpp)
 
-set(srcs ./parser/dianshu_parser_module.cpp
+add_enclave_library(mp4_evaluate_parser SRCS ${T_SRCS}
+  EDL ../parser/dianshu_parser.edl
+  EDL_SEARCH_PATHS ${YPC_INCLUDE_DIR}/ypc/edl/util/:${YPC_INCLUDE_DIR}/ypc/edl/:${YPC_INCLUDE_DIR}/ypc/stbox/
+)
+target_include_directories(mp4_evaluate_parser-edlobj PUBLIC
+  "${YPC_INCLUDE_DIR}"
   )
-add_untrusted_library(dianshu_parser_module SHARED
-  SRCS ${srcs}
-  EDL ./enclave/dianshu_parser.edl
-  EDL_SEARCH_PATHS ${YPC_INCLUDE_DIR}/ypc/edl/util/:${YPC_INCLUDE_DIR}/ypc/edl/:${YPC_INCLUDE_DIR}/ypc/stbox/)
-
-target_link_libraries(dianshu_parser_module PUBLIC YPC::stbox_common YPC::core_parser_module)
-target_include_directories(dianshu_parser_module PUBLIC
-  "$<BUILD_INTERFACE:${YPC_INCLUDE_DIR}>"
-  "$<BUILD_INTERFACE:${FF_INCLUDE_DIR}>"
-  "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>")
-target_include_directories(dianshu_parser_module INTERFACE
-  "$<INSTALL_INTERFACE:${SGX_INCLUDE_DIR}>")
-target_link_directories(dianshu_parser_module INTERFACE
-  "$<INSTALL_INTERFACE:${SGX_LIBRARY_DIR}>")
-
-
-find_package(OpenCV REQUIRED)
-add_executable(dianshu_analyzer dianshu_analyzer.cpp
-  parser/sgx_bridge.cpp
-  parser/dianshu_parser.cpp
+target_include_directories(mp4_evaluate_parser PUBLIC
+  "${YPC_INCLUDE_DIR}"
   )
-target_link_libraries(dianshu_analyzer
-  YPC::stbox_common
-  YPC::core
-  YPC::keymgr_module
-  YPC::keymgr_utils
-  dianshu_parser_module
-  glog
-  ${OpenCV_LIBS}
-  )
-install(TARGETS dianshu_analyzer
-  DESTINATION "${bin_install_dir}")
+target_link_libraries(mp4_evaluate_parser PRIVATE
+  YPC::stbox_common_t
+  YPC::stbox_channel_t
+  YPC::analyzer_t YPC::stdeth_t)
+
+enclave_sign(mp4_evaluate_parser KEY enclave_private.pem
+  CONFIG enclave.config.xml)

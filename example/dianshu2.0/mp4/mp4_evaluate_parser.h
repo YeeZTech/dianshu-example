@@ -1,4 +1,4 @@
-#include "../../json.hpp"
+#include "../json.hpp"
 #include "dianshu_parser_t.h"
 #include "user_type.h"
 
@@ -76,6 +76,9 @@ public:
       LOG(INFO) << "base64 size: " << base64_s.size();
       res["images"].append(base64_s);
     }
+    // trunc the content of file
+    ofs.open(filename.c_str(), ypc::ios_base::out | ypc::ios_base::trunc);
+    ofs.close();
 
     return stbox::bytes(res.dump());
   }
