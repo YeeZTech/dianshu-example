@@ -1,9 +1,19 @@
-const { program } = require('commander');
+const {
+  program
+} = require('commander');
 const fs = require('fs');
+const csv = require('csv-parser')
+const path = require('path')
 
 const ME = require("meta-encryptor")
-const {Sealer, ToString} = ME;
-const {dataHashOfSealedFile} = ME;
+const {
+  Sealer,
+  CSVSealer,
+  ToString
+} = ME;
+const {
+  dataHashOfSealedFile
+} = ME;
 
 program
   .description('YeeZ Privacy Data Hub')
@@ -41,22 +51,30 @@ const key_pair = {
   private_key: key_file["private-key"],
   public_key: key_file["public-key"]
 }
-async function sealFile(key, src, dst){
-  let rs = fs.createReadStream(src);
-  let ws = fs.createWriteStream(dst);
-  rs.pipe(new Sealer({keyPair:key_pair})).pipe(ws);
-  await new Promise(resolve=>{
-    ws.on('finish', ()=>{
-      resolve();
+async function sealFile(key, src, dst) {
+    let rs = fs.createReadStream(src);
+    let ws = fs.createWriteStream(dst);
+    if (path.extname(src) === ".csv") {
+      rs.pipe(csv({
+        header: false
+      })).pipe(new ToString()).pipe(new CSVSealer({
+        keyPair: key_pair
+      })).pipe(ws)
+    } else {
+      rs.pipe(new Sealer({
+        keyPair: key_pair
+      })).pipe(ws);
+    }
+    await new Promise(resolve => {
+      ws.on('finish', () => {
+        resolve();
+      });
     });
-  });
-}
-(async()=>{
-  await sealFile(key_file, options.dataUrl, options.sealedDataUrl)
-  let output_content = '';
-  output_content += ('public_key = ' + key_file['public-key'] + '\n');
-  output_content += ('data_id = ' + dataHashOfSealedFile(options.sealedDataUrl).toString('hex') + '\n');
-  fs.writeFileSync(options.output, output_content);
-})()
-
-
+  }
+  (async () => {
+    await sealFile(key_file, options.dataUrl, options.sealedDataUrl)
+    let output_content = '';
+    output_content += ('public_key = ' + key_file['public-key'] + '\n');
+    output_content += ('data_id = ' + dataHashOfSealedFile(options.sealedDataUrl).toString('hex') + '\n');
+    fs.writeFileSync(options.output, output_content);
+  })()
