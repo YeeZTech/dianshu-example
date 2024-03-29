@@ -1,8 +1,0 @@
-
-enclave {
-  from "eparser.edl" import *;
-
-  untrusted {
-    uint32_t ocall_exec_sql([in, size=sql_size] const uint8_t * sql, uint32_t sql_size);
-  };
-};

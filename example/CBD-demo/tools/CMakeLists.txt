@@ -1,5 +1,0 @@
-add_executable(decrypt_result decrypt_result.cpp)
-target_link_libraries(decrypt_result core boost_program_options pthread terminus)
-
-add_executable(param_generator param_generator.cpp)
-target_link_libraries(param_generator core boost_program_options pthread terminus glog)

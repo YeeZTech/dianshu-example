@@ -1,5 +1,0 @@
-#include_directories(${PROJECT_SOURCE_DIR}/vendor/fflib/include)
-#include_directories(${PROJECT_SOURCE_DIR}/include)
-#link_directories(${PROJECT_SOURCE_DIR}/vendor/fflib/lib)
-#add_subdirectory(enclave)
-#add_subdirectory(plugin)

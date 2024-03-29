@@ -1,3 +1,0 @@
-add_subdirectory(enclave)
-
-add_library(dianshu_clickhouse_http_query SHARED clickhouse_http_query.cpp)

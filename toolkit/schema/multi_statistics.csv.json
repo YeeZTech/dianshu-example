@@ -1,6 +1,0 @@
-{
-  "type":"csv",
-  "schema":[
-    {"name":"value", "type":"int"}
-  ]
-}

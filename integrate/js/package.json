@@ -2,14 +2,15 @@
 	"name": "ypc-js-sdk",
 	"version": "1.0.0",
 	"dependencies": {
-	  "meta-encryptor":"file:../meta-encryptor",
-		"node-aes-cmac": "",
-		"secp256k1": "",
+		"bytebuffer": "",
+		"commander": "",
+		"csv-parser": "^3.0.0",
 		"js-sha256": "",
 		"keccak256": "",
-		"bytebuffer": "",
+		"meta-encryptor": "file:../meta-encryptor",
 		"n-readlines": "",
-		"commander": "",
+		"node-aes-cmac": "",
+		"secp256k1": "",
 		"yargs": ""
 	}
 }
