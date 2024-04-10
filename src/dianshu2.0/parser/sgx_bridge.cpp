@@ -78,41 +78,59 @@ uint32_t remove_file(const std::string &filename) {
   return 0;
 }
 std::unique_ptr<uint8_t[]> g_mem_buf;
+
+// 给定视频路径，随机截取其中一帧
 uint32_t ocall_get_frame(const char *ifs, uint32_t ifs_size, uint8_t **data,
                          uint32_t *len) {
   cv::VideoCapture cap(ifs);
+  // check if the file was opened successfully
   if (!cap.isOpened()) {
     LOG(ERROR) << "Error: Could not open the MP4 file.";
     return 1;
   }
 
-  int total_frames = cap.get(cv::CAP_PROP_FRAME_COUNT);
+  int total_frames = cap.get(cv::CAP_PROP_FRAME_COUNT); // 获取视频总帧数
   LOG(INFO) << "Frame count: " << total_frames;
+  double fps = cap.get(cv::CAP_PROP_FPS); // 获取视频帧率
+  double total_duration = total_frames / fps; // 计算视频总时长 = 视频总帧数 / 视频帧率
+  LOG(INFO) << "Total time (duration) of the video: " << total_duration
+            << " seconds";
   const int frame_capture_len = 1;
-  int frame_index = random_get_frame_index(total_frames, frame_capture_len);
+  int frame_index = random_get_frame_index(total_frames, frame_capture_len); // 随机选取一帧
 
   LOG(INFO) << "Frame index: " << frame_index;
-  // read frame
+  // read frame 
   cap.set(cv::CAP_PROP_POS_FRAMES, frame_index);
-  cv::Mat frame;
+  cv::Mat frame; // 用于存储视频帧数据
   if (!cap.read(frame)) {
     LOG(ERROR) << "Failed to read frame";
     return 2;
   }
 
   // frame to bytes
-  size_t frame_bytes_size = frame.total() * frame.elemSize();
+  size_t frame_bytes_size = frame.total() * frame.elemSize(); // 计算帧数据的字节数
   LOG(INFO) << "Size of the frame in bytes: " << frame_bytes_size;
+  std::vector<int> compression_params; // 压缩参数
+  compression_params.push_back(cv::IMWRITE_JPEG_QUALITY); // 设置JPEG压缩质量
+  const size_t max_frame_size = 1024 * 1024; // 设置最大帧数据大小为1MB
+  size_t ratio =
+      std::min(size_t(100), size_t(100.0 * max_frame_size / frame_bytes_size));
+  LOG(INFO) << "compress ratio: " << ratio << "%";
+  compression_params.push_back(ratio);
   std::vector<unsigned char> buf;
-  bool ret = cv::imencode(".jpg", frame, buf);
+  bool ret = cv::imencode(".jpg", frame, buf, compression_params); // 将帧数据编码为JPEG格式
+  
+  // 检查是否编码成功
   if (!ret) {
     LOG(ERROR) << "Failed to encode frame to memory buffer";
     return 3;
   }
 
-  // serialize frams
+  // 将视频帧数据和时间戳打包为一个对象
   typename ypc::cast_obj_to_package<video_frame_t>::type pkg;
   pkg.set<::video_frame>(buf);
+  pkg.set<::total_duration>(total_duration);
+  pkg.set<::frame_ts>(total_duration * frame_index / total_frames);
   auto b = ypc::make_bytes<ypc::bytes>::for_package(pkg);
   LOG(INFO) << "serialized len: " << b.size();
   g_mem_buf = std::unique_ptr<uint8_t[]>(new uint8_t[b.size()]);
@@ -122,5 +140,4 @@ uint32_t ocall_get_frame(const char *ifs, uint32_t ifs_size, uint8_t **data,
 
   cap.release();
   return 0;
-  // return remove_file(std::string(ifs, ifs_size));
 }
