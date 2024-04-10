@@ -47,6 +47,7 @@ public:
     
     ypc::cxxfile ofs;
     ofs.open(filename.c_str(), ypc::ios_base::out | ypc::ios_base::binary);
+    bool flag = false;
     int count = 0;
 
     // 设置数据过滤器，用于处理数据片段
