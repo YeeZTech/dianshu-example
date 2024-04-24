@@ -12,21 +12,21 @@
 
 ```json
 {
-  totalDuration: "80",
-  positions: [
+  "positions": [
     {
-      duration: "22"
-      picture:  "/9j/4AAQSkZJRgABAQAAAQABA......"
+      "duration": "22"
+      "picture":  "/9j/4AAQSkZJRgABAQAAAQABA......"
     },
     {
-      duration: "34" 
-      picture:  "/9j/4AAQSkZJRgABAQAAAQABA......"
+      "duration": "34" 
+      "picture":  "/9j/4AAQSkZJRgABAQAAAQABA......"
     },
     {
-      duration: "45" 
-      picture:  "/9j/4AAQSkZJRgABAQAAAQABA......"
+      "duration": "45"
+      "picture":  "/9j/4AAQSkZJRgABAQAAAQABA......"
     }
-  ] 
+  ],
+  "totalDuration": "80", 
 }
 ```
 
