@@ -26,7 +26,7 @@
       "picture":  "/9j/4AAQSkZJRgABAQAAAQABA......"
     }
   ],
-  "totalDuration": "80", 
+  "totalDuration": "80"
 }
 ```
 
