@@ -12,19 +12,19 @@
 
 ```json
 {
-  totalDuration: // 总时长
+  totalDuration: "80"// 总时长
   positions: [
     {
-      duration:  // 时间点
-      picture:  // 截取图片
+      duration: "22" // 时间点
+      picture:  "/9j/4AAQSkZJRgABAQAAAQABA......"
     },
     {
-      duration:  
-      picture:  
+      duration: "34" 
+      picture:  "/9j/4AAQSkZJRgABAQAAAQABA......"
     },
     {
-      duration:  
-      picture:  
+      duration: "45" 
+      picture:  "/9j/4AAQSkZJRgABAQAAAQABA......"
     }
   ] 
 }
