@@ -12,10 +12,10 @@
 
 ```json
 {
-  totalDuration: "80"// 总时长
+  totalDuration: "80"
   positions: [
     {
-      duration: "22" // 时间点
+      duration: "22"
       picture:  "/9j/4AAQSkZJRgABAQAAAQABA......"
     },
     {
