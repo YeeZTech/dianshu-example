@@ -12,7 +12,7 @@
 
 ```json
 {
-  totalDuration: "80"
+  totalDuration: "80",
   positions: [
     {
       duration: "22"
