@@ -11,6 +11,26 @@
 {
 "result": [
     {
+      "type": "text",
+      "label": "行数",
+      "value": "11"
+    },
+    {
+      "type": "text",
+      "label": "列数",
+      "value": "4"
+    },
+    {
+      "type": "text",
+      "label": "总缺失值",
+      "value": "9"
+    },
+    {
+      "type": "text",
+      "label": "总缺失值占比",
+      "value": "20.45%"
+    },
+    {
       "type": "image",
       "label": "缺失值热力图",
       "value": "/9j/4AAQSkZJRg......"
